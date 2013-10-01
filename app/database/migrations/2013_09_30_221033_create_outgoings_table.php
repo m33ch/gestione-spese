@@ -16,10 +16,12 @@ class CreateOutgoingsTable extends Migration {
 			$table->increments('id');
 			$table->integer('user_id')->unsigned();
 			$table->foreign('user_id')->references('id')->on('users');
-			$table->string('title',50);
+			$table->string('title',25);
 			$table->string('description');
-			$table->decimal('amount',11,2);
+			$table->date('date');
+			$table->decimal('amount',5,2);
 			$table->timestamps();
+			$table->softDeletes();
 		});
 	}
 
