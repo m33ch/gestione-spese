@@ -15,9 +15,9 @@ class CreatePayersTable extends Migration {
 		Schema::create('payers', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->increments('user_id')->unsigned();
+			$table->integer('user_id')->unsigned();
 			$table->foreign('user_id')->references('id')->on('users');
-			$table->increments('outgoings_id')->unsigned();
+			$table->integer('outgoings_id')->unsigned();
 			$table->foreign('outgoings_id')->references('id')->on('outgoings');
 			$table->decimal('contribution',5,2);
 			$table->timestamps();
