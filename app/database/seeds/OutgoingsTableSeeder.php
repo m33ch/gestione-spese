@@ -11,22 +11,22 @@ class OutgoingsTableSeeder extends Seeder {
             'title' => 'Spesa 1',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
-            'amount' => '25,45'
+            'amount' => '30,60'
         ));
  
         Outgoings::create(array(
-            'user_id' => '1',
+            'user_id' => '2',
             'title' => 'Spesa 2',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
-            'amount' => '25,45'
+            'amount' => '30,60'
         ));
         Outgoings::create(array(
-            'user_id' => '1',
+            'user_id' => '3',
             'title' => 'Spesa 3',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
-            'amount' => '25,45'
+            'amount' => '30,60'
         ));
     }
  
