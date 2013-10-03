@@ -15,3 +15,5 @@ Route::get('/', function()
 {
 	return View::make('hello');
 });
+Route::get('/user', 'UserController@index');
+Route::get('/store', 'UserController@index');

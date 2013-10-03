@@ -6,7 +6,7 @@ class Outgoings extends Eloquent {
 	 *
 	 * @var string
 	 */
-	protected $table = 'users';
+	protected $table = 'outgoings';
 	
 	protected $guarded = array();
 

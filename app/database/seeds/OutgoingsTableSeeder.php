@@ -7,7 +7,7 @@ class OutgoingsTableSeeder extends Seeder {
         DB::table('outgoings')->delete();
  
         Outgoings::create(array(
-            'user_id' => '1',
+            'user_id' => 1,
             'title' => 'Spesa 1',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
@@ -15,14 +15,14 @@ class OutgoingsTableSeeder extends Seeder {
         ));
  
         Outgoings::create(array(
-            'user_id' => '2',
+            'user_id' => 2,
             'title' => 'Spesa 2',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
             'amount' => '30,60'
         ));
         Outgoings::create(array(
-            'user_id' => '3',
+            'user_id' => 3,
             'title' => 'Spesa 3',
             'description' => 'Descrizione',
             'date' => '2013-09-27',
