@@ -15,7 +15,7 @@
 
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
   {{ HTML::script('assets/javascript/semantic.min.js') }}
-
+  {{ HTML::script('assets/javascript/scripts.js') }}
 </head>
 <body>
   <!-- Success-Messages -->
@@ -29,16 +29,20 @@
   @endif
   @if ( Auth::check() )
   <div class="ui menu">
-    
-    {{{ HTML::link('user', 'Utenti', array('class'=>'item')) }}}
-
+    <a class="item" href="{{ url('user') }}">
+        <i class="users icon"></i> Utenti
+    </a>
+    <a class="item" href="{{ url('outgoings') }}">
+        <i class="browser icon"></i> Spese
+    </a>
     <div class="right menu">
-      <div class="ui dropdown item">
+      <div class="ui simple dropdown item">
         Benvenuto {{{ $currentUser->name }}} <i class="dropdown icon"></i>
         <div class="menu">
-          <a class="item">English</a>
-          <a class="item">Russian</a>
-          <a class="item">Spanish</a>
+          
+          {{ HTML::link('user/profile', 'Profilo', array('class'=>'item')) }}
+          {{ HTML::link('user/edit', 'Modifica Dati', array('class'=>'item')) }}
+          {{ HTML::link('logout', 'Log-out', array('class'=>'item')) }}
         </div>
       </div>
     </div>

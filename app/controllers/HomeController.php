@@ -2,8 +2,6 @@
 
 class HomeController extends BaseController {
 
-	public $currentUser;
-
 	public function __construct() 
 	{
 		parent::__construct();

@@ -1,7 +1,6 @@
 <?php
 
-class UserController extends BaseController {
-
+class OutgoingsController extends BaseController {
 	public function __construct() 
 	{
 		parent::__construct();
@@ -14,10 +13,9 @@ class UserController extends BaseController {
 	 */
 	public function index()
 	{
-        $users = User::all();
-        return View::make('users.index')
-        			->with('users', $users)
-        			->with('currentUser', $this->currentUser);
+        $outgoings = Outgoings::all();
+
+        return View::make('outgoings.index')->with('currentUser',$this->currentUser);
 	}
 
 	/**
@@ -27,7 +25,7 @@ class UserController extends BaseController {
 	 */
 	public function create()
 	{
-        return View::make('users.create');
+        return View::make('outgoings.create');
 	}
 
 	/**
@@ -48,7 +46,7 @@ class UserController extends BaseController {
 	 */
 	public function show($id)
 	{
-        return View::make('users.show');
+        return View::make('outgoings.show');
 	}
 
 	/**
@@ -59,11 +57,7 @@ class UserController extends BaseController {
 	 */
 	public function edit($id)
 	{
-        $user = User::find($id);
-    	
-        return View::make('users.edit')
-        			->with('user', $user)
-        			->with('currentUser', $this->currentUser);
+        return View::make('outgoings.edit');
 	}
 
 	/**

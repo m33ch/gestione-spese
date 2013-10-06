@@ -11,7 +11,6 @@
 |
 */
 
-
 Route::get('login',   array('as' => 'login', 'uses' => 'AuthController@getLogin'));
 Route::post('login',  'AuthController@postLogin');
 Route::get('logout',   'AuthController@getLogout');
@@ -28,6 +27,17 @@ Route::group(array('before' => 'auth'), function()
 
 	    Route::get('/', 'UserController@index');
 		Route::get('create', 'UserController@create');
+		Route::get('edit/{id}', 'UserController@edit')->where('id','[0-9]+');
+
+	});
+
+	// Routes for OutgoingsController
+	Route::group(array('prefix' => 'outgoings'), function()
+	{
+
+	    Route::get('/', 'OutgoingsController@index');
+		Route::get('create', 'OutgoingsController@create');
+		Route::get('edit/{id}', 'OutgoingsController@edit')->where('id','[0-9]+');
 
 	});
 
