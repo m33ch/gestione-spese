@@ -31,7 +31,7 @@
 			    </tr>
 			    <tr>
 			    	<th colspan="3">
-			    		<?php echo $users->links(); ?>
+			    		<?php //echo $users->links(); ?>
 			    	</th>
 			    </tr>
 		    </tfoot>

@@ -11,9 +11,24 @@
 |
 */
 
-Route::get('/', function()
+
+Route::get('login',   array('as' => 'login', 'uses' => 'AuthController@getLogin'));
+Route::post('login',  'AuthController@postLogin');
+Route::get('logout',   'AuthController@getLogout');
+
+// Secure-Routes
+Route::group(array('before' => 'auth'), function()
 {
-	return View::make('hello');
+	// Routes for Dashboard
+	Route::get('/',   array('as' => 'dashboard', 'uses' => 'HomeController@showWelcome'));
+	
+	// Routes for UserController
+	Route::group(array('prefix' => 'user'), function()
+	{
+
+	    Route::get('/', 'UserController@index');
+		Route::get('create', 'UserController@create');
+
+	});
+
 });
-Route::get('/user', 'UserController@index');
-Route::get('/store', 'UserController@index');

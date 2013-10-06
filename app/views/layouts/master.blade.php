@@ -18,6 +18,16 @@
 
 </head>
 <body>
+  <!-- Success-Messages -->
+  @if ($message = Session::get('success'))
+        <div class="ui success message">
+          <i class="close icon"></i>
+          <div class="header">
+            {{{ $message }}}
+          </div>
+      </div>
+  @endif
+  
   <div class="ui grid">
    		@yield('content')
   </div>
