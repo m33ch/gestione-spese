@@ -1,7 +1,6 @@
 @extends('layouts.master')
 
 @section('content')
-<div class="wide column"> 
 	<div class="ui segment">
 		<h2 class="ui header">
 		  	Lista utenti
@@ -37,6 +36,5 @@
 		    </tfoot>
 		</table>
 	</div>
-</di
 
 @stop

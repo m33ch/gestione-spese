@@ -2,6 +2,12 @@
 
 class BaseController extends Controller {
 
+	public $currentUser;
+
+	public function __construct()
+	{
+		$this->currentUser = (Auth::user()) ? Auth::user() : 0;
+	}
 	/**
 	 * Setup the layout used by the controller.
 	 *

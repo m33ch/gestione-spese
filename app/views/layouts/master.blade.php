@@ -27,10 +27,26 @@
           </div>
       </div>
   @endif
-  
-  <div class="ui grid">
-   		@yield('content')
+  @if ( Auth::check() )
+  <div class="ui menu">
+    
+    {{{ HTML::link('user', 'Utenti', array('class'=>'item')) }}}
+
+    <div class="right menu">
+      <div class="ui dropdown item">
+        Benvenuto {{{ $currentUser->name }}} <i class="dropdown icon"></i>
+        <div class="menu">
+          <a class="item">English</a>
+          <a class="item">Russian</a>
+          <a class="item">Spanish</a>
+        </div>
+      </div>
+    </div>
   </div>
+  @endif
+  
+  @yield('content')
+  
 </body>
 
 </html>

@@ -2,6 +2,13 @@
 
 class UserController extends BaseController {
 
+	public $currentUser;
+
+	public function __construct() 
+	{
+		parent::__construct();
+
+	}
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -10,8 +17,7 @@ class UserController extends BaseController {
 	public function index()
 	{
         $users = User::all();
-
-        return View::make('users.index')->with('users', $users);
+        return View::make('users.index')->with(array('users' => $users, 'currentUser' => $this->currentUser));
 	}
 
 	/**
