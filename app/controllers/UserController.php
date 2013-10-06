@@ -2,10 +2,12 @@
 
 class UserController extends BaseController {
 
+	public $currentMenu;
+
 	public function __construct() 
 	{
 		parent::__construct();
-
+		$this->currentMenu = 'user';
 	}
 	/**
 	 * Display a listing of the resource.
@@ -15,8 +17,10 @@ class UserController extends BaseController {
 	public function index()
 	{
         $users = User::all();
+
         return View::make('users.index')
         			->with('users', $users)
+        			->with('currentMenu',$this->currentMenu)
         			->with('currentUser', $this->currentUser);
 	}
 
@@ -63,6 +67,7 @@ class UserController extends BaseController {
     	
         return View::make('users.edit')
         			->with('user', $user)
+        			->with('currentMenu',$this->currentMenu)
         			->with('currentUser', $this->currentUser);
 	}
 

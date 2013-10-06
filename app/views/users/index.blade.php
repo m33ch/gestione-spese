@@ -8,7 +8,7 @@
 		<table class="ui sortable table segment">
 			<thead>
 			    <tr>
-			    	<th>Id</th>
+			    	<th class="one wide">Id</th>
 				    <th>Nome</th>
 				    <th>Email</th>
 			  	</tr>
@@ -26,11 +26,6 @@
 			    <tr>
 			    	<th colspan="3">
 			      		<div class="ui blue labeled icon button"><i class="user icon"></i> Add User</div>
-			    	</th>
-			    </tr>
-			    <tr>
-			    	<th colspan="3">
-			    		<?php //echo $users->links(); ?>
 			    	</th>
 			    </tr>
 		    </tfoot>

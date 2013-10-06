@@ -1,10 +1,13 @@
 <?php
 
 class OutgoingsController extends BaseController {
+		
+	public $currentMenu;
+
 	public function __construct() 
 	{
 		parent::__construct();
-
+		$this->currentMenu = 'outgoings';
 	}
 	/**
 	 * Display a listing of the resource.
@@ -13,9 +16,11 @@ class OutgoingsController extends BaseController {
 	 */
 	public function index()
 	{
-        $outgoings = Outgoings::all();
-
-        return View::make('outgoings.index')->with('currentUser',$this->currentUser);
+        $outgoings = Outgoings::with('user')->get();
+        return View::make('outgoings.index')
+        			->with('currentUser',$this->currentUser)
+        			->with('currentMenu',$this->currentMenu)
+        			->with('outgoings',$outgoings);
 	}
 
 	/**

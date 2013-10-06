@@ -29,10 +29,10 @@
   @endif
   @if ( Auth::check() )
   <div class="ui menu">
-    <a class="item" href="{{ url('user') }}">
+    <a class="item <?php echo $currentMenu == 'user' ? 'active' : null ?>" href="{{ url('user') }}">
         <i class="users icon"></i> Utenti
     </a>
-    <a class="item" href="{{ url('outgoings') }}">
+    <a class="item <?php echo $currentMenu == 'outgoings' ? 'active' : null ?>" href="{{ url('outgoings') }}">
         <i class="browser icon"></i> Spese
     </a>
     <div class="right menu">
