@@ -64,17 +64,7 @@ class OutgoingsController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-                    // Try to log the user in.
-            if (Auth::attempt($userdata))
-            {
-                // Redirect to homepage
-                return Redirect::to('/')->with('success', 'You have logged in successfully');
-            }
-            else
-            {
-                // Redirect to the login page.
-                return Redirect::to('login')->withErrors(array('password' => 'Password invalid'))->withInput(Input::except('password'));
-            }
+            //store here
         }
 
         return View::make('outgoings.create')
