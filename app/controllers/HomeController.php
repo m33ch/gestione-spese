@@ -5,7 +5,7 @@ class HomeController extends BaseController {
 	public function __construct() 
 	{
 		parent::__construct();
-
+		$this->currentMenu = 'home';
 	}
 	/*
 	|--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ class HomeController extends BaseController {
 
 	public function showWelcome()
 	{
-		return View::make('hello')->with('currentUser', $this->currentUser);
+		return View::make('hello')->with('currentUser', $this->currentUser)->with('currentMenu',$this->currentMenu);
 	}
 
 }

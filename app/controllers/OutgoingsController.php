@@ -2,7 +2,6 @@
 
 class OutgoingsController extends BaseController {
 		
-	public $currentMenu;
 
 	public function __construct() 
 	{
@@ -30,7 +29,10 @@ class OutgoingsController extends BaseController {
 	 */
 	public function create()
 	{
-        return View::make('outgoings.create');
+		
+        return View::make('outgoings.create')
+        			->with('currentUser',$this->currentUser)
+        			->with('currentMenu',$this->currentMenu);
 	}
 
 	/**
@@ -40,7 +42,46 @@ class OutgoingsController extends BaseController {
 	 */
 	public function store()
 	{
-		//
+		// Get all the inputs
+        // id is used for login, username is used for validation to return correct error-strings
+        $userdata = array(
+                'title' => Input::get('title'),
+                'description' => Input::get('description'),
+                'data' => Input::get('data'),
+                'amount' => Input::get('amount'),
+        );
+        // Declare the rules for the form validation.
+        $rules = array(
+           'title'  => 'required',
+           'description'  => 'required',
+           'data'  => 'required',
+           'amount'  => 'required'
+        );
+
+        // Validate the inputs.
+        $validator = Validator::make($userdata, $rules);
+
+        // Check if the form validates with success.
+        if ($validator->passes())
+        {
+                    // Try to log the user in.
+            if (Auth::attempt($userdata))
+            {
+                // Redirect to homepage
+                return Redirect::to('/')->with('success', 'You have logged in successfully');
+            }
+            else
+            {
+                // Redirect to the login page.
+                return Redirect::to('login')->withErrors(array('password' => 'Password invalid'))->withInput(Input::except('password'));
+            }
+        }
+
+        return View::make('outgoings.create')
+        			->withErrors($validator)
+        			->withInput(Input::all())
+        			->with('currentUser',$this->currentUser)
+        			->with('currentMenu',$this->currentMenu);
 	}
 
 	/**

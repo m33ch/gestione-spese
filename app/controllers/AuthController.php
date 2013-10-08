@@ -1,7 +1,7 @@
 <?php  
    
 class AuthController extends BaseController {
- 
+
     public function getLogin()
     {
         // Check if we already logged in
@@ -17,7 +17,7 @@ class AuthController extends BaseController {
  
     public function postLogin()
         {
-           // Get all the inputs
+                // Get all the inputs
                 // id is used for login, username is used for validation to return correct error-strings
                 $userdata = array(
                     'email' => Input::get('email'),
@@ -47,7 +47,7 @@ class AuthController extends BaseController {
                         return Redirect::to('login')->withErrors(array('password' => 'Password invalid'))->withInput(Input::except('password'));
                     }
                 }
-
+                
                 // Something went wrong.
                 return Redirect::to('login')->withErrors($validator)->withInput(Input::except('password'));
         }

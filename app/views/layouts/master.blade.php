@@ -40,8 +40,8 @@
         Benvenuto {{{ $currentUser->name }}} <i class="dropdown icon"></i>
         <div class="menu">
           
-          {{ HTML::link('user/profile', 'Profilo', array('class'=>'item')) }}
-          {{ HTML::link('user/edit', 'Modifica Dati', array('class'=>'item')) }}
+          {{ HTML::link('user/profile/'.$currentUser->id, 'Profilo', array('class'=>'item')) }}
+          {{ HTML::link('user/edit/'.$currentUser->id, 'Modifica Dati', array('class'=>'item')) }}
           {{ HTML::link('logout', 'Log-out', array('class'=>'item')) }}
         </div>
       </div>

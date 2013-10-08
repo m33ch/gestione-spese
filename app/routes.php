@@ -28,6 +28,7 @@ Route::group(array('before' => 'auth'), function()
 	    Route::get('/', 'UserController@index');
 		Route::get('create', 'UserController@create');
 		Route::get('edit/{id}', 'UserController@edit')->where('id','[0-9]+');
+		Route::get('profile/{id}', 'UserController@show')->where('id','[0-9]+');
 
 	});
 
@@ -37,6 +38,7 @@ Route::group(array('before' => 'auth'), function()
 
 	    Route::get('/', 'OutgoingsController@index');
 		Route::get('create', 'OutgoingsController@create');
+		Route::post('create', 'OutgoingsController@store');
 		Route::get('edit/{id}', 'OutgoingsController@edit')->where('id','[0-9]+');
 
 	});

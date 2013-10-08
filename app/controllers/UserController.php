@@ -52,7 +52,12 @@ class UserController extends BaseController {
 	 */
 	public function show($id)
 	{
-        return View::make('users.show');
+        $user = User::find($id);
+    	
+        return View::make('users.show')
+        			->with('user', $user)
+        			->with('currentMenu',$this->currentMenu)
+        			->with('currentUser', $this->currentUser);
 	}
 
 	/**
