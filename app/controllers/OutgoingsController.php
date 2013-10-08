@@ -47,14 +47,15 @@ class OutgoingsController extends BaseController {
         $userdata = array(
                 'title' => Input::get('title'),
                 'description' => Input::get('description'),
-                'data' => Input::get('data'),
+                'date' => Input::get('date--submit'),
                 'amount' => Input::get('amount'),
+                'user_id' => /*Input::get('user_id')*/ 1,
         );
         // Declare the rules for the form validation.
         $rules = array(
            'title'  => 'required',
            'description'  => 'required',
-           'data'  => 'required',
+           'date'  => 'required',
            'amount'  => 'required'
         );
 
@@ -64,7 +65,10 @@ class OutgoingsController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-            //store here
+        	var_dump(Input::get('date')) ;die();
+            $outgoing = Outgoings::create($userdata);
+
+            return Redirect::to('/')->with('success', 'Spesa create');
         }
 
         // Something went wrong.
