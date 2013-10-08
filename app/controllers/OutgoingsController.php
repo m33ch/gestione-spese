@@ -67,11 +67,8 @@ class OutgoingsController extends BaseController {
             //store here
         }
 
-        return View::make('outgoings.create')
-        			->withErrors($validator)
-        			->withInput(Input::all())
-        			->with('currentUser',$this->currentUser)
-        			->with('currentMenu',$this->currentMenu);
+        // Something went wrong.
+        return Redirect::to('outgoings/create')->withErrors($validator)->withInput(Input::all());
 	}
 
 	/**

@@ -10,7 +10,7 @@
 		<div class="ui error form segment">
 			<div class="field">
 			    <label>Titolo</label>
-			    <input placeholder="inserisci un titolo" type="text" name="title" value="{{ Input::old('title'); }}" >
+			    <input placeholder="inserisci un titolo" type="text" name="title" value="{{ Input::old('title') }}" >
 			   <?php echo $errors->first('title') ? '<div class="ui red pointing above ui label">'.$errors->first('title').'</div>' : null;  ?>
 			</div>
 			<div class="field">
@@ -19,11 +19,11 @@
 			</div>
 		  	<div class="field">
 			    <label>Data </label>
-			    <input placeholder="inserisci la data di acquisto" type="text" name="date" value="{{ Input::old('date'); }}" >
+			    <input placeholder="inserisci la data di acquisto" type="text" name="date" value="{{ Input::old('date') }}" >
 			</div>
 			<div class="field">
 			    <label>Costo Spesa </label>
-			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ Input::old('amount'); }}" >
+			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ Input::old('amount') }}" >
 			</div>
 		  <button type="submit" class="ui blue submit button">Crea</button>
 		</div>
