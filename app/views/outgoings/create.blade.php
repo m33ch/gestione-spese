@@ -27,13 +27,25 @@
 			</div>
 		  	<div class="date field <?php echo $errors->first('date') ? 'error' : null;  ?>">
 			    <label>Data </label>
-			    <input placeholder="xx/xx/xxxx" class="datepicker" type="text" name="date" value="{{ Input::old('date') }}" >
+			    <input placeholder="xx/xx/xxxx" class="datepicker" type="text" name="date" value="{{ Input::old('date') }}" data-value="{{ Input::old('date_submit') }}">
+
 			    <?php echo $errors->first('date') ? '<div class="ui red pointing above ui label">'.$errors->first('date').'</div>' : null;  ?>
 			</div>
 			<div class="field <?php echo $errors->first('amount') ? 'error' : null;  ?>">
 			    <label>Costo Spesa </label>
 			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ Input::old('amount') }}" >
 			    <?php echo $errors->first('amount') ? '<div class="ui red pointing above ui label">'.$errors->first('amount').'</div>' : null;  ?>
+			</div>
+			<div class="grouped inline fields">
+				<div class="ui pointing below label">Seleziona i contribuenti</div>
+				@foreach ($users as $user)	
+				    <div class="field">
+				      <div class="ui checkbox">
+				        <input name="payers[]" value="{{$user->id}}" id="user_{{$user->id}}" type="checkbox">
+				        <label for="user_{{$user->id}}">{{$user->name}}</label>
+				      </div>
+				    </div>
+				@endforeach
 			</div>
 		  <button type="submit" class="ui blue submit button">Crea</button>
 		</div>

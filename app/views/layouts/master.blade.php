@@ -36,7 +36,7 @@
         <i class="browser icon"></i> Spese
     </a>
     <div class="right menu">
-      <div class="ui simple dropdown item">
+      <div class="ui dropdown item">
         Benvenuto {{{ $currentUser->name }}} <i class="dropdown icon"></i>
         <div class="menu">
           

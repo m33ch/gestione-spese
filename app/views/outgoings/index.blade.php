@@ -29,7 +29,8 @@
 		    <tfoot>
 			    <tr>
 			    	<th colspan="5">
-			      		<div class="ui blue labeled icon button"><i class="user icon"></i> Aggiungi spesa</div>
+
+			      		<a href="outgoings/create" class="ui blue labeled icon button"><i class="user icon"></i> Aggiungi spesa</a>
 			    	</th>
 			    </tr>
 		    </tfoot>

@@ -29,8 +29,10 @@ class OutgoingsController extends BaseController {
 	 */
 	public function create()
 	{
-		
+		$users = User::All();
+
         return View::make('outgoings.create')
+        			->with('users',$users)
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu);
 	}
@@ -47,7 +49,7 @@ class OutgoingsController extends BaseController {
         $userdata = array(
                 'title' => Input::get('title'),
                 'description' => Input::get('description'),
-                'date' => Input::get('date--submit'),
+                'date' => Input::get('date_submit'),
                 'amount' => Input::get('amount'),
                 'user_id' => /*Input::get('user_id')*/ 1,
         );
@@ -65,7 +67,6 @@ class OutgoingsController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-        	var_dump(Input::get('date')) ;die();
             $outgoing = Outgoings::create($userdata);
 
             return Redirect::to('/')->with('success', 'Spesa create');
