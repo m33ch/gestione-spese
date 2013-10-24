@@ -47,18 +47,20 @@ class OutgoingsController extends BaseController {
 		// Get all the inputs
         // id is used for login, username is used for validation to return correct error-strings
         $userdata = array(
-                'title' => Input::get('title'),
-                'description' => Input::get('description'),
-                'date' => Input::get('date_submit'),
-                'amount' => Input::get('amount'),
-                'user_id' => /*Input::get('user_id')*/ 1,
+                'title' 		=> Input::get('title'),
+                'description' 	=> Input::get('description'),
+                'date' 			=> Input::get('date_submit'),
+                'amount' 		=> Input::get('amount'),
+                'payers' 		=> Input::get('payers'),
+                'user_id' 		=> $this->currentUser->id,
         );
         // Declare the rules for the form validation.
         $rules = array(
-           'title'  => 'required',
-           'description'  => 'required',
-           'date'  => 'required',
-           'amount'  => 'required'
+           'title'  		=> 'required',
+           'description'  	=> 'required',
+           'date'  			=> 'required',
+           'amount'  		=> 'required',
+           'payers'  		=> 'required'
         );
 
         // Validate the inputs.

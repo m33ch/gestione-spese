@@ -35,11 +35,10 @@
     <a class="item <?php echo $currentMenu == 'outgoings' ? 'active' : null ?>" href="{{ url('outgoings') }}">
         <i class="browser icon"></i> Spese
     </a>
-    <div class="right menu">
+    <div class="ui right menu">
       <div class="ui dropdown item">
-        Benvenuto {{{ $currentUser->name }}} <i class="dropdown icon"></i>
-        <div class="menu">
-          
+       <i class="user icon"></i> Benvenuto {{ $currentUser->name }} <i class="dropdown icon"></i>
+        <div class="ui menu">
           {{ HTML::link('user/profile/'.$currentUser->id, 'Profilo', array('class'=>'item')) }}
           {{ HTML::link('user/edit/'.$currentUser->id, 'Modifica Dati', array('class'=>'item')) }}
           {{ HTML::link('logout', 'Log-out', array('class'=>'item')) }}
@@ -48,7 +47,6 @@
     </div>
   </div>
   @endif
-  
   @yield('content')
   
 </body>

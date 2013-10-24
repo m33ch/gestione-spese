@@ -16,7 +16,7 @@
 			  	</tr>
 			</thead>
 		    <tbody>
-		    	<?php foreach ($outgoings as $outgoing) : ?>
+		    	@foreach ($outgoings as $outgoing)  
 			    <tr>
 			      	<td><?php echo $outgoing->id ?></td>
 			      	<td><?php echo $outgoing->user->name ?></td>
@@ -24,7 +24,7 @@
 			      	<td><?php echo date("d/m/Y", strtotime($outgoing->date)) ?></td>
 			      	<td><?php echo $outgoing->amount ?></td>
 			    </tr>
-			<?php endforeach; ?>
+			@endforeach
 		    </tbody>
 		    <tfoot>
 			    <tr>

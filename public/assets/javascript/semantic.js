@@ -15,30 +15,30 @@ $.fn.accordion = function(parameters) {
   var
     $allModules     = $(this),
 
-    settings        = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.accordion.settings, parameters)
-      : $.fn.accordion.settings,
-
-    className       = settings.className,
-    namespace       = settings.namespace,
-    selector        = settings.selector,
-    error           = settings.error,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
-    moduleSelector  = $allModules.selector || '',
-
     time            = new Date().getTime(),
     performance     = [],
 
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
       var
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.accordion.settings, parameters)
+          : $.extend({}, $.fn.accordion.settings),
+
+        className       = settings.className,
+        namespace       = settings.namespace,
+        selector        = settings.selector,
+        error           = settings.error,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+        moduleSelector  = $allModules.selector || '',
+
         $module  = $(this),
         $title   = $module.find(selector.title),
         $content = $module.find(selector.content),
@@ -60,6 +60,7 @@ $.fn.accordion = function(parameters) {
         },
 
         instantiate: function() {
+          instance = module;
           $module
             .data(moduleNamespace, module)
           ;
@@ -201,14 +202,11 @@ $.fn.accordion = function(parameters) {
         },
 
         setting: function(name, value) {
-          module.debug('Changing setting', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
@@ -290,9 +288,6 @@ $.fn.accordion = function(parameters) {
             if(moduleSelector) {
               title += ' \'' + moduleSelector + '\'';
             }
-            if($allModules.size() > 1) {
-              title += ' ' + '(' + $allModules.size() + ')';
-            }
             if( (console.group !== undefined || console.table !== undefined) && performance.length > 0) {
               console.groupCollapsed(title);
               if(console.table) {
@@ -350,14 +345,14 @@ $.fn.accordion = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -376,8 +371,8 @@ $.fn.accordion = function(parameters) {
       }
     })
   ;
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -393,8 +388,8 @@ $.fn.accordion.settings = {
   exclusive   : true,
   collapsible : true,
 
-  duration    : 300,
-  easing      : 'linear',
+  duration    : 500,
+  easing      : 'easeInOutQuint',
 
   onOpen      : function(){},
   onClose     : function(){},
@@ -416,7 +411,16 @@ $.fn.accordion.settings = {
 
 };
 
+// Adds easing
+$.extend( $.easing, {
+  easeInOutQuint: function (x, t, b, c, d) {
+    if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+    return c/2*((t-=2)*t*t*t*t + 2) + b;
+  }
+});
+
 })( jQuery, window , document );
+
 
 /*
  * # Semantic - API
@@ -467,7 +471,7 @@ $.fn.accordion.settings = {
       queryArguments  = [].slice.call(arguments, 1),
 
       module,
-      invokedResponse
+      returnedValue
     ;
 
     module = {
@@ -770,26 +774,22 @@ $.fn.accordion.settings = {
       },
 
       setting: function(name, value) {
-        if(value !== undefined) {
-          if( $.isPlainObject(name) ) {
-            $.extend(true, settings, name);
-          }
-          else {
-            settings[name] = value;
-          }
+        if( $.isPlainObject(name) ) {
+          $.extend(true, settings, name);
+        }
+        else if(value !== undefined) {
+          settings[name] = value;
         }
         else {
           return settings[name];
         }
       },
       internal: function(name, value) {
-        if(value !== undefined) {
-          if( $.isPlainObject(name) ) {
-            $.extend(true, module, name);
-          }
-          else {
-            module[name] = value;
-          }
+        if( $.isPlainObject(name) ) {
+          $.extend(true, module, name);
+        }
+        else if(value !== undefined) {
+          module[name] = value;
         }
         else {
           return module[name];
@@ -914,14 +914,14 @@ $.fn.accordion.settings = {
         else if(found !== undefined) {
           response = found;
         }
-        if($.isArray(invokedResponse)) {
-          invokedResponse.push(response);
+        if($.isArray(returnedValue)) {
+          returnedValue.push(response);
         }
-        else if(typeof invokedResponse == 'string') {
-          invokedResponse = [invokedResponse, response];
+        else if(returnedValue !== undefined) {
+          returnedValue = [returnedValue, response];
         }
         else if(response !== undefined) {
-          invokedResponse = response;
+          returnedValue = response;
         }
         return found;
       }
@@ -940,8 +940,8 @@ $.fn.accordion.settings = {
       module.initialize();
     }
 
-    return (invokedResponse !== undefined)
-      ? invokedResponse
+    return (returnedValue !== undefined)
+      ? returnedValue
       : this
     ;
   };
@@ -1364,7 +1364,7 @@ $.fn.form = function(fields, parameters) {
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
@@ -1712,28 +1712,22 @@ $.fn.form = function(fields, parameters) {
         },
 
         setting: function(name, value) {
-          module.debug('Changing setting', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          module.debug('Changing internal', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -1861,14 +1855,14 @@ $.fn.form = function(fields, parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -1889,8 +1883,8 @@ $.fn.form = function(fields, parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -2069,7 +2063,7 @@ $.fn.state = function(parameters) {
     moduleNamespace = namespace + '-module',
 
 
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
@@ -2614,14 +2608,14 @@ $.fn.state = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -2642,8 +2636,8 @@ $.fn.state = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -2771,19 +2765,27 @@ $.fn.state.settings = {
 
 $.fn.chatroom = function(parameters) {
   var
-    settings  = $.extend(true, {}, $.fn.chatroom.settings, parameters),
+    $allModules    = $(this),
+    moduleSelector = $allModules.selector || '',
 
-    className = settings.className,
-    namespace = settings.namespace,
-    selector  = settings.selector,
-    error     = settings.error,
+    time           = new Date().getTime(),
+    performance    = [],
 
-    // hoist arguments
-    moduleArguments = arguments || false
+    query          = arguments[0],
+    methodInvoked  = (typeof query == 'string'),
+    queryArguments = [].slice.call(arguments, 1),
+    returnedValue
   ;
   $(this)
     .each(function() {
       var
+        settings  = $.extend(true, {}, $.fn.chatroom.settings, parameters),
+
+        className = settings.className,
+        namespace = settings.namespace,
+        selector  = settings.selector,
+        error     = settings.error,
+
         $module         = $(this),
 
         $expandButton   = $module.find(selector.expandButton),
@@ -2800,6 +2802,7 @@ $.fn.chatroom = function(parameters) {
         $messageButton  = $module.find(selector.messageButton),
 
         instance        = $module.data('module'),
+        element         = this,
 
         html            = '',
         users           = {},
@@ -3193,8 +3196,6 @@ $.fn.chatroom = function(parameters) {
 
         },
 
-
-
       setting: function(name, value) {
         if(value !== undefined) {
           if( $.isPlainObject(name) ) {
@@ -3209,13 +3210,11 @@ $.fn.chatroom = function(parameters) {
         }
       },
       internal: function(name, value) {
-        if(value !== undefined) {
-          if( $.isPlainObject(name) ) {
-            $.extend(true, module, name);
-          }
-          else {
-            module[name] = value;
-          }
+        if( $.isPlainObject(name) ) {
+          $.extend(true, module, name);
+        }
+        else if(value !== undefined) {
+          module[name] = value;
         }
         else {
           return module[name];
@@ -3283,7 +3282,6 @@ $.fn.chatroom = function(parameters) {
           if(moduleSelector) {
             title += ' \'' + moduleSelector + '\'';
           }
-          title += ' ' + '(' + $allDropdowns.size() + ')';
           if( (console.group !== undefined || console.table !== undefined) && performance.length > 0) {
             console.groupCollapsed(title);
             if(console.table) {
@@ -3343,8 +3341,8 @@ $.fn.chatroom = function(parameters) {
   })
 ;
 
-  return (invokedResponse)
-    ? invokedResponse
+  return (returnedValue)
+    ? returnedValue
     : this
   ;
 };
@@ -3542,16 +3540,6 @@ $.fn.chatroom = function(parameters) {
 $.fn.checkbox = function(parameters) {
   var
     $allModules    = $(this),
-
-    settings       = $.extend(true, {}, $.fn.checkbox.settings, parameters),
-
-    className      = settings.className,
-    namespace      = settings.namespace,
-    error          = settings.error,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
-
     moduleSelector = $allModules.selector || '',
 
     time           = new Date().getTime(),
@@ -3560,12 +3548,21 @@ $.fn.checkbox = function(parameters) {
     query          = arguments[0],
     methodInvoked  = (typeof query == 'string'),
     queryArguments = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
+        settings        = $.extend(true, {}, $.fn.checkbox.settings, parameters),
+
+        className       = settings.className,
+        namespace       = settings.namespace,
+        error           = settings.error,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+
         $module         = $(this),
         $label          = $(this).next(settings.selector.label).first(),
         $input          = $(this).find(settings.selector.input),
@@ -3619,6 +3616,12 @@ $.fn.checkbox = function(parameters) {
         is: {
           radio: function() {
             return $module.hasClass(className.radio);
+          },
+          enabled: function() {
+            return $input.prop('checked') !== undefined && $input.prop('checked');
+          },
+          disabled: function() {
+            return !module.is.enabled();
           }
         },
 
@@ -3651,34 +3654,30 @@ $.fn.checkbox = function(parameters) {
 
         toggle: function(event) {
           module.verbose('Determining new checkbox state');
-          if($input.prop('checked') === undefined || !$input.prop('checked')) {
+          if( module.is.disabled() ) {
             module.enable();
           }
-          else if( module.can.disable() ) {
+          else if( module.is.enabled() && module.can.disable() ) {
             module.disable();
           }
         },
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -3803,14 +3802,14 @@ $.fn.checkbox = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -3831,8 +3830,8 @@ $.fn.checkbox = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -3888,35 +3887,36 @@ $.fn.dimmer = function(parameters) {
   var
     $allModules     = $(this),
 
-    settings        = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.dimmer.settings, parameters)
-      : $.fn.dimmer.settings,
-
-    selector        = settings.selector,
-    namespace       = settings.namespace,
-    className       = settings.className,
-    error           = settings.error,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
-    moduleSelector  = $allModules.selector || '',
-
     time            = new Date().getTime(),
     performance     = [],
 
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    clickEvent      = ('ontouchstart' in document.documentElement)
-      ? 'touchstart'
-      : 'click',
 
-    invokedResponse
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.dimmer.settings, parameters)
+          : $.extend({}, $.fn.dimmer.settings),
+
+        selector        = settings.selector,
+        namespace       = settings.namespace,
+        className       = settings.className,
+        error           = settings.error,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+        moduleSelector  = $allModules.selector || '',
+
+        clickEvent      = ('ontouchstart' in document.documentElement)
+          ? 'touchstart'
+          : 'click',
+
         $module = $(this),
         $dimmer,
         $dimmable,
@@ -3939,7 +3939,7 @@ $.fn.dimmer = function(parameters) {
               $dimmer = $dimmable.children(selector.dimmer).first();
             }
             else {
-              module.create();
+              $dimmer = module.create();
             }
           }
         },
@@ -3983,6 +3983,9 @@ $.fn.dimmer = function(parameters) {
 
         destroy: function() {
           module.verbose('Destroying previous module', $dimmer);
+          $module
+            .removeData(moduleNamespace)
+          ;
           $dimmable
             .off(eventNamespace)
           ;
@@ -4014,19 +4017,26 @@ $.fn.dimmer = function(parameters) {
         },
 
         create: function() {
-          $dimmer = $( settings.template.dimmer() );
-          return $dimmer.appendTo($dimmable);
+          return $( settings.template.dimmer() ).appendTo($dimmable);
         },
 
         animate: {
           show: function(callback) {
-            callback = callback || function(){};
+            callback = $.isFunction(callback)
+              ? callback
+              : function(){}
+            ;
             module.set.dimmed();
             if($.fn.transition !== undefined) {
               $dimmer
-                .transition(settings.transition + ' in', module.get.duration(), function() {
-                  module.set.active();
-                  callback();
+                .transition({
+                  animation : settings.transition + ' in',
+                  queue     : true,
+                  duration  : module.get.duration(),
+                  complete  : function() {
+                    module.set.active();
+                    callback();
+                  },
                 })
               ;
             }
@@ -4048,14 +4058,22 @@ $.fn.dimmer = function(parameters) {
             }
           },
           hide: function(callback) {
-            callback = callback || function(){};
-            module.remove.dimmed();
+            callback = $.isFunction(callback)
+              ? callback
+              : function(){}
+            ;
             if($.fn.transition !== undefined) {
               module.verbose('Hiding dimmer with css');
               $dimmer
-                .transition(settings.transition + ' out', module.get.duration(), function() {
-                  module.remove.active();
-                  callback();
+                .transition({
+                  animation : settings.transition + ' out',
+                  duration  : module.get.duration(),
+                  queue     : true,
+                  complete  : function() {
+                    module.remove.dimmed();
+                    module.remove.active();
+                    callback();
+                  }
                 })
               ;
             }
@@ -4065,6 +4083,7 @@ $.fn.dimmer = function(parameters) {
                 .stop()
                 .fadeOut(module.get.duration(), function() {
                   $dimmer.removeAttr('style');
+                  module.remove.dimmed();
                   module.remove.active();
                   callback();
                 })
@@ -4097,26 +4116,29 @@ $.fn.dimmer = function(parameters) {
         },
 
         is: {
-          dimmer: function() {
-            return $module.is(selector.dimmer);
-          },
-          dimmable: function() {
-            return $module.is(selector.dimmable);
-          },
           active: function() {
             return $dimmer.hasClass(className.active);
           },
           animating: function() {
             return ( $dimmer.is(':animated') || $dimmer.hasClass(className.transition) );
           },
-          page: function () {
-            return $dimmable.is('body');
+          dimmer: function() {
+            return $module.is(selector.dimmer);
           },
-          enabled: function() {
-            return !$dimmable.hasClass(className.disabled);
+          dimmable: function() {
+            return $module.is(selector.dimmable);
+          },
+          dimmed: function() {
+            return $dimmable.hasClass(className.dimmed);
           },
           disabled: function() {
             return $dimmable.hasClass(className.disabled);
+          },
+          enabled: function() {
+            return !module.is.disabled();
+          },
+          page: function () {
+            return $dimmable.is('body');
           },
           pageDimmer: function() {
             return $dimmer.hasClass(className.pageDimmer);
@@ -4131,6 +4153,7 @@ $.fn.dimmer = function(parameters) {
 
         set: {
           active: function() {
+            module.set.dimmed();
             $dimmer
               .removeClass(className.transition)
               .addClass(className.active)
@@ -4166,8 +4189,12 @@ $.fn.dimmer = function(parameters) {
         },
 
         show: function(callback) {
+          callback = $.isFunction(callback)
+            ? callback
+            : function(){}
+          ;
           module.debug('Showing dimmer', $dimmer, settings);
-          if( !(module.is.active() || module.is.animating() ) && module.is.enabled() ) {
+          if( !module.is.active() && module.is.enabled() ) {
             module.animate.show(callback);
             $.proxy(settings.onShow, element)();
             $.proxy(settings.onChange, element)();
@@ -4178,7 +4205,11 @@ $.fn.dimmer = function(parameters) {
         },
 
         hide: function(callback) {
-          if( module.is.active() && !module.is.animating() ) {
+          callback = $.isFunction(callback)
+            ? callback
+            : function(){}
+          ;
+          if( module.is.active() || module.is.animating() ) {
             module.debug('Hiding dimmer', $dimmer);
             module.animate.hide(callback);
             $.proxy(settings.onHide, element)();
@@ -4191,7 +4222,7 @@ $.fn.dimmer = function(parameters) {
 
         toggle: function() {
           module.verbose('Toggling dimmer visibility', $dimmer);
-          if( !module.is.active() ) {
+          if( !module.is.dimmed() ) {
             module.show();
           }
           else {
@@ -4200,26 +4231,22 @@ $.fn.dimmer = function(parameters) {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -4347,14 +4374,14 @@ $.fn.dimmer = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -4377,8 +4404,8 @@ $.fn.dimmer = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -4388,12 +4415,11 @@ $.fn.dimmer.settings = {
   name        : 'Dimmer',
   namespace   : 'dimmer',
 
-  verbose     : true,
   debug       : true,
+  verbose     : true,
   performance : true,
 
   transition  : 'fade',
-
   on          : false,
   closable    : true,
   duration    : {
@@ -4445,51 +4471,51 @@ $.fn.dimmer.settings = {
  * http://opensource.org/licenses/MIT
  *
  */
-
 ;(function ( $, window, document, undefined ) {
 
 $.fn.dropdown = function(parameters) {
-  var
-    $allModules = $(this),
-    $document   = $(document),
+    var
+    $allModules    = $(this),
+    $document      = $(document),
 
-    settings    = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.dropdown.settings, parameters)
-      : $.fn.dropdown.settings,
+    moduleSelector = $allModules.selector || '',
 
-    className         = settings.className,
-    metadata          = settings.metadata,
-    namespace         = settings.namespace,
-    selector          = settings.selector,
-    error             = settings.error,
+    hasTouch       = ('ontouchstart' in document.documentElement),
+    time           = new Date().getTime(),
+    performance    = [],
 
-    eventNamespace    = '.' + namespace,
-    dropdownNamespace = 'module-' + namespace,
-    dropdownSelector  = $allModules.selector || '',
-
-    time              = new Date().getTime(),
-    performance       = [],
-
-    query             = arguments[0],
-    methodInvoked     = (typeof query == 'string'),
-    queryArguments    = [].slice.call(arguments, 1),
-    invokedResponse
+    query          = arguments[0],
+    methodInvoked  = (typeof query == 'string'),
+    queryArguments = [].slice.call(arguments, 1),
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
-        $module       = $(this),
-        $item         = $module.find(selector.item),
-        $text         = $module.find(selector.text),
-        $input        = $module.find(selector.input),
+        settings          = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.dropdown.settings, parameters)
+          : $.extend({}, $.fn.dropdown.settings),
 
-        $menu         = $module.children(selector.menu),
+        className       = settings.className,
+        metadata        = settings.metadata,
+        namespace       = settings.namespace,
+        selector        = settings.selector,
+        error           = settings.error,
 
-        isTouchDevice = ('ontouchstart' in document.documentElement),
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
 
-        element       = this,
-        instance      = $module.data(dropdownNamespace),
+        $module         = $(this),
+        $item           = $module.find(selector.item),
+        $text           = $module.find(selector.text),
+        $input          = $module.find(selector.input),
+
+        $menu           = $module.children(selector.menu),
+
+
+        element         = this,
+        instance        = $module.data(moduleNamespace),
         module
       ;
 
@@ -4497,42 +4523,22 @@ $.fn.dropdown = function(parameters) {
 
         initialize: function() {
           module.debug('Initializing dropdown', settings);
-          if(isTouchDevice) {
-            $module
-              .on('touchstart' + eventNamespace, module.event.test.toggle)
-            ;
+
+          module.set.selected();
+
+          if(hasTouch) {
+            module.bind.touchEvents();
           }
-          else if(settings.on == 'click') {
-            $module
-              .on('click' + eventNamespace, module.event.test.toggle)
-            ;
-          }
-          else if(settings.on == 'hover') {
-            $module
-              .on('mouseenter' + eventNamespace, module.delay.show)
-              .on('mouseleave' + eventNamespace, module.delay.hide)
-            ;
-          }
-          else {
-            $module
-              .on(settings.on + eventNamespace, module.toggle)
-            ;
-          }
-          if(settings.action == 'updateForm') {
-            module.set.selected();
-          }
-          $item
-            .on('mouseenter' + eventNamespace, module.event.item.mouseenter)
-            .on('mouseleave' + eventNamespace, module.event.item.mouseleave)
-            .on(module.get.selectEvent() + eventNamespace, module.event.item.click)
-          ;
+          // no use detecting mouse events because touch devices emulate them
+          module.bind.mouseEvents();
           module.instantiate();
         },
 
         instantiate: function() {
           module.verbose('Storing instance of dropdown', module);
+          instance = module;
           $module
-            .data(dropdownNamespace, module)
+            .data(moduleNamespace, module)
           ;
         },
 
@@ -4543,20 +4549,93 @@ $.fn.dropdown = function(parameters) {
           ;
           $module
             .off(eventNamespace)
-            .removeData(dropdownNamespace)
+            .removeData(moduleNamespace)
           ;
         },
 
-        event: {
+        bind: {
+          touchEvents: function() {
+            module.debug('Touch device detected binding touch events');
+            $module
+              .on('touchstart' + eventNamespace, module.event.test.toggle)
+            ;
+            $item
+              .on('touchstart' + eventNamespace, module.event.item.mouseenter)
+              .on('touchstart' + eventNamespace, module.event.item.click)
+            ;
+          },
+          mouseEvents: function() {
+            module.verbose('Mouse detected binding mouse events');
+            if(settings.on == 'click') {
+              $module
+                .on('click' + eventNamespace, module.event.test.toggle)
+              ;
+            }
+            else if(settings.on == 'hover') {
+              $module
+                .on('mouseenter' + eventNamespace, module.delay.show)
+                .on('mouseleave' + eventNamespace, module.delay.hide)
+              ;
+            }
+            else {
+              $module
+                .on(settings.on + eventNamespace, module.toggle)
+              ;
+            }
+            $item
+              .on('mouseenter' + eventNamespace, module.event.item.mouseenter)
+              .on('mouseleave' + eventNamespace, module.event.item.mouseleave)
+              .on('click'      + eventNamespace, module.event.item.click)
+            ;
+          },
+          intent: function() {
+            module.verbose('Binding hide intent event to document');
+            if(hasTouch) {
+              $document
+                .on('touchstart' + eventNamespace, module.event.test.touch)
+                .on('touchmove'  + eventNamespace, module.event.test.touch)
+              ;
+            }
+            $document
+              .on('click' + eventNamespace, module.event.test.hide)
+            ;
+          }
+        },
 
+        unbind: {
+          intent: function() {
+            module.verbose('Removing hide intent event from document');
+            if(hasTouch) {
+              $document
+                .off('touchstart' + eventNamespace)
+              ;
+            }
+            $document
+              .off('click' + eventNamespace)
+            ;
+          }
+        },
+
+        event: {
           test: {
             toggle: function(event) {
-              module.determine.intent(event, module.toggle);
-              event.stopImmediatePropagation();
+              if( module.determine.intent(event, module.toggle) ) {
+                event.preventDefault();
+              }
+            },
+            touch: function(event) {
+              module.determine.intent(event, function() {
+                if(event.type == 'touchstart') {
+                  module.timer = setTimeout(module.hide, settings.delay.touch);
+                }
+                else if(event.type == 'touchmove') {
+                  clearTimeout(module.timer);
+                }
+              });
+              event.stopPropagation();
             },
             hide: function(event) {
               module.determine.intent(event, module.hide);
-              event.stopPropagation();
             }
           },
 
@@ -4574,6 +4653,7 @@ $.fn.dropdown = function(parameters) {
                   module.verbose('Showing sub-menu', $currentMenu);
                   module.animate.show(false,  $currentMenu);
                 }, settings.delay.show * 2);
+                event.preventDefault();
               }
             },
 
@@ -4597,13 +4677,6 @@ $.fn.dropdown = function(parameters) {
                 value   = $choice.data(metadata.value) || text.toLowerCase()
               ;
               if( $choice.find(selector.menu).size() === 0 ) {
-                module.verbose('Adding active state to selected item');
-                $item
-                  .removeClass(className.active)
-                ;
-                $choice
-                  .addClass(className.active)
-                ;
                 module.determine.selectAction(text, value);
                 $.proxy(settings.onChange, element)(value, text);
               }
@@ -4620,26 +4693,16 @@ $.fn.dropdown = function(parameters) {
         determine: {
           selectAction: function(text, value) {
             module.verbose('Determining action', settings.action);
-            if(settings.action == 'auto') {
-              if(module.is.selection()) {
-                module.debug('Selection dropdown used updating form', text, value);
-                module.updateForm(text, value);
-              }
-              else {
-                module.debug('No action specified hiding dropdown', text, value);
-                module.hide();
-              }
-            }
-            else if( $.isFunction( module[settings.action] ) ) {
+            if( $.isFunction( module.action[settings.action] ) ) {
               module.verbose('Triggering preset action', settings.action, text, value);
-              module[ settings.action ](text, value);
+              module.action[ settings.action ](text, value);
             }
             else if( $.isFunction(settings.action) ) {
               module.verbose('Triggering user action', settings.action, text, value);
               settings.action(text, value);
             }
             else {
-              module.error(error.action);
+              module.error(error.action, settings.action);
             }
           },
           intent: function(event, callback) {
@@ -4648,51 +4711,56 @@ $.fn.dropdown = function(parameters) {
             if( $(event.target).closest($menu).size() === 0 ) {
               module.verbose('Triggering event', callback);
               callback();
+              return true;
             }
             else {
               module.verbose('Event occurred in dropdown, canceling callback');
+              return false;
             }
           }
         },
 
-        bind: {
-          intent: function() {
-            module.verbose('Binding hide intent event to document');
-            $document
-              .on(module.get.selectEvent(), module.event.test.hide)
-            ;
+        action: {
+
+          nothing: function() {},
+
+          hide: function() {
+            module.hide();
+          },
+
+          activate: function(text, value) {
+            value = value || text;
+            module.set.selected(value);
+            module.set.value(value);
+            module.hide();
+          },
+
+          /* Deprecated */
+          auto: function(text, value) {
+            value = value || text;
+            module.set.selected(value);
+            module.set.value(value);
+            module.hide();
+          },
+
+          /* Deprecated */
+          changeText: function(text, value) {
+            value = value || text;
+            module.set.selected(value);
+            module.hide();
+          },
+
+          /* Deprecated */
+          updateForm: function(text, value) {
+            value = value || text;
+            module.set.selected(value);
+            module.set.value(value);
+            module.hide();
           }
-        },
 
-        unbind: {
-          intent: function() {
-            module.verbose('Removing hide intent event from document');
-            $document
-              .off(module.get.selectEvent())
-            ;
-          }
-        },
-
-        nothing: function() {},
-
-        changeText: function(text, value) {
-          module.set.text(text);
-          module.hide();
-        },
-
-        updateForm: function(text, value) {
-          module.set.text(text);
-          module.set.value(value);
-          module.hide();
         },
 
         get: {
-          selectEvent: function() {
-            return (isTouchDevice)
-              ? 'touchstart'
-              : 'click'
-            ;
-          },
           text: function() {
             return $text.text();
           },
@@ -4703,14 +4771,25 @@ $.fn.dropdown = function(parameters) {
             var
               $selectedItem
             ;
-            value = value || $input.val();
-            $item
-              .each(function() {
-                if( $(this).data(metadata.value) == value ) {
-                  $selectedItem = $(this);
-                }
-              })
-            ;
+            value = value || module.get.value() || module.get.text();
+            if(value) {
+              $item
+                .each(function() {
+                  var
+                    $choice       = $(this),
+                    optionText    = $choice.data(metadata.text)  || $choice.text(),
+                    optionValue   = $choice.data(metadata.value) || optionText.toLowerCase()
+                  ;
+                  if( optionValue == value || optionText == value ) {
+                    $selectedItem = $(this);
+                    return false;
+                  }
+                })
+              ;
+            }
+            else {
+              value = module.get.text();
+            }
             return $selectedItem || false;
           }
         },
@@ -4763,23 +4842,29 @@ $.fn.dropdown = function(parameters) {
           selection: function() {
             return $module.hasClass(className.selection);
           },
+          animated: function($subMenu) {
+            return ($subMenu)
+              ? $subMenu.is(':animated') || $subMenu.transition('is animating')
+              : $menu.is(':animated') || $menu.transition('is animating')
+            ;
+          },
           visible: function($subMenu) {
             return ($subMenu)
-              ? $subMenu.is(':animated, :visible')
-              : $menu.is(':animated, :visible')
+              ? $subMenu.is(':visible')
+              : $menu.is(':visible')
             ;
           },
           hidden: function($subMenu) {
             return ($subMenu)
-              ? $subMenu.is(':not(:animated, :visible)')
-              : $menu.is(':not(:animated, :visible)')
+              ? $subMenu.is(':not(:visible)')
+              : $menu.is(':not(:visible)')
             ;
           }
         },
 
         can: {
           click: function() {
-            return (isTouchDevice || settings.on == 'click');
+            return (hasTouch || settings.on == 'click');
           },
           show: function() {
             return !$module.hasClass(className.disabled);
@@ -4834,7 +4919,7 @@ $.fn.dropdown = function(parameters) {
                 ;
               }
               else {
-                module.error(error.transition);
+                module.error(error.transition, settings.transition);
               }
             }
           },
@@ -4896,16 +4981,18 @@ $.fn.dropdown = function(parameters) {
           if( module.is.hidden() ) {
             module.hideOthers();
             module.set.active();
-            module.animate.show(module.set.visible);
-            if( module.can.click() ) {
-              module.bind.intent();
-            }
+            module.animate.show(function() {
+              if( module.can.click() ) {
+                module.bind.intent();
+              }
+              module.set.visible();
+            });
             $.proxy(settings.onShow, element)();
           }
         },
 
         hide: function() {
-          if( module.is.visible() ) {
+          if( !module.is.animated() && module.is.visible() ) {
             module.debug('Hiding dropdown');
             if( module.can.click() ) {
               module.unbind.intent();
@@ -4949,574 +5036,22 @@ $.fn.dropdown = function(parameters) {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
           }
-          else {
-            return module[name];
-          }
-        },
-        debug: function() {
-          if(settings.debug) {
-            if(settings.performance) {
-              module.performance.log(arguments);
-            }
-            else {
-              module.debug = Function.prototype.bind.call(console.info, console, settings.name + ':');
-              module.debug.apply(console, arguments);
-            }
-          }
-        },
-        verbose: function() {
-          if(settings.verbose && settings.debug) {
-            if(settings.performance) {
-              module.performance.log(arguments);
-            }
-            else {
-              module.verbose = Function.prototype.bind.call(console.info, console, settings.name + ':');
-              module.verbose.apply(console, arguments);
-            }
-          }
-        },
-        error: function() {
-          module.error = Function.prototype.bind.call(console.error, console, settings.name + ':');
-          module.error.apply(console, arguments);
-        },
-        performance: {
-          log: function(message) {
-            var
-              currentTime,
-              executionTime,
-              previousTime
-            ;
-            if(settings.performance) {
-              currentTime   = new Date().getTime();
-              previousTime  = time || currentTime;
-              executionTime = currentTime - previousTime;
-              time          = currentTime;
-              performance.push({
-                'Element'        : element,
-                'Name'           : message[0],
-                'Arguments'      : [].slice.call(message, 1) || '',
-                'Execution Time' : executionTime
-              });
-            }
-            clearTimeout(module.performance.timer);
-            module.performance.timer = setTimeout(module.performance.display, 100);
-          },
-          display: function() {
-            var
-              title = settings.name + ':',
-              totalTime = 0
-            ;
-            time = false;
-            clearTimeout(module.performance.timer);
-            $.each(performance, function(index, data) {
-              totalTime += data['Execution Time'];
-            });
-            title += ' ' + totalTime + 'ms';
-            if(dropdownSelector) {
-              title += ' \'' + dropdownSelector + '\'';
-            }
-            if( (console.group !== undefined || console.table !== undefined) && performance.length > 0) {
-              console.groupCollapsed(title);
-              if(console.table) {
-                console.table(performance);
-              }
-              else {
-                $.each(performance, function(index, data) {
-                  console.log(data['Name'] + ': ' + data['Execution Time']+'ms');
-                });
-              }
-              console.groupEnd();
-            }
-            performance = [];
-          }
-        },
-        invoke: function(query, passedArguments, context) {
-          var
-            maxDepth,
-            found
-          ;
-          passedArguments = passedArguments || queryArguments;
-          context         = element         || context;
-          if(typeof query == 'string' && instance !== undefined) {
-            query    = query.split(/[\. ]/);
-            maxDepth = query.length - 1;
-            $.each(query, function(depth, value) {
-              if( $.isPlainObject( instance[value] ) && (depth != maxDepth) ) {
-                instance = instance[value];
-              }
-              else if( instance[value] !== undefined ) {
-                found = instance[value];
-              }
-              else {
-                module.error(error.method);
-              }
-            });
-          }
-          if ( $.isFunction( found ) ) {
-            return found.apply(context, passedArguments);
-          }
-          return found || false;
-        }
-      };
-
-      if(methodInvoked) {
-        if(instance === undefined) {
-          module.initialize();
-        }
-        module.invoke(query);
-      }
-      else {
-        if(instance !== undefined) {
-          module.destroy();
-        }
-        module.initialize();
-      }
-    })
-  ;
-
-  return (invokedResponse)
-    ? invokedResponse
-    : this
-  ;
-};
-
-$.fn.dropdown.settings = {
-
-  name        : 'Dropdown',
-  namespace   : 'dropdown',
-
-  verbose     : true,
-  debug       : true,
-  performance : true,
-
-  on          : 'click',
-  action      : 'auto',
-
-  delay: {
-    show: 200,
-    hide: 300
-  },
-
-  transition : 'slide down',
-  duration   : 250,
-
-  onChange : function(){},
-  onShow   : function(){},
-  onHide   : function(){},
-
-  error   : {
-    action    : 'You called a dropdown action that was not defined',
-    method    : 'The method you called is not defined.',
-    transition : 'The requested transition was not found'
-  },
-
-  metadata: {
-    text  : 'text',
-    value : 'value'
-  },
-
-  selector : {
-    menu  : '.menu',
-    item  : '.menu > .item',
-    text  : '> .text',
-    input : '> input[type="hidden"]'
-  },
-
-  className : {
-    active      : 'active',
-    placeholder : 'default',
-    disabled    : 'disabled',
-    visible     : 'visible',
-    selection   : 'selection'
-  }
-
-};
-
-})( jQuery, window , document );
-/*
- * # Semantic - Modal
- * http://github.com/jlukic/semantic-ui/
- *
- *
- * Copyright 2013 Contributors
- * Released under the MIT license
- * http://opensource.org/licenses/MIT
- *
- */
-
-;(function ( $, window, document, undefined ) {
-
-$.fn.modal = function(parameters) {
-  var
-    $allModules = $(this),
-    $window     = $(window),
-    $document   = $(document),
-
-    settings    = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.modal.settings, parameters)
-      : $.fn.modal.settings,
-
-    selector        = settings.selector,
-    className       = settings.className,
-    namespace       = settings.namespace,
-    error           = settings.error,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
-    moduleSelector  = $allModules.selector || '',
-
-    time            = new Date().getTime(),
-    performance     = [],
-
-    query           = arguments[0],
-    methodInvoked   = (typeof query == 'string'),
-    queryArguments  = [].slice.call(arguments, 1),
-
-    invokedResponse
-  ;
-
-
-  $allModules
-    .each(function() {
-      var
-        $module      = $(this),
-        $context     = $(settings.context),
-        $otherModals = $allModules.not($module),
-        $close       = $module.find(selector.close),
-
-        $focusedElement,
-        $dimmer,
-
-        element      = this,
-        instance     = $module.data(moduleNamespace),
-        module
-      ;
-
-      module  = {
-
-        initialize: function() {
-          module.verbose('Initializing dimmer', $context);
-
-          $dimmer = $context
-            .dimmer('add content', $module)
-            .dimmer('get dimmer')
-          ;
-
-          module.verbose('Attaching close events', $close);
-          $close
-            .on('click' + eventNamespace, module.event.close)
-          ;
-          $window
-            .on('resize', function() {
-              module.event.debounce(module.refresh, 50);
-            })
-          ;
-          module.instantiate();
-        },
-
-        instantiate: function() {
-          module.verbose('Storing instance of modal');
-          instance = module;
-          $module
-            .data(moduleNamespace, instance)
-          ;
-        },
-
-        destroy: function() {
-          module.verbose('Destroying previous modal');
-          $module
-            .off(eventNamespace)
-          ;
-        },
-
-        refresh: function() {
-          module.remove.scrolling();
-          module.cacheSizes();
-          module.set.type();
-          module.set.position();
-        },
-
-        attachEvents: function(selector, event) {
-          var
-            $toggle = $(selector)
-          ;
-          event = $.isFunction(module[event])
-            ? module[event]
-            : module.show
-          ;
-          if($toggle.size() > 0) {
-            module.debug('Attaching modal events to element', selector, event);
-            $toggle
-              .off(eventNamespace)
-              .on('click' + eventNamespace, event)
-            ;
-          }
-          else {
-            module.error(error.notFound);
-          }
-        },
-
-        event: {
-          close: function() {
-            module.verbose('Close button pressed');
-            $context.dimmer('hide');
-          },
-          debounce: function(method, delay) {
-            clearTimeout(module.timer);
-            module.timer = setTimeout(method, delay);
-          },
-          keyboard: function(event) {
-            var
-              keyCode   = event.which,
-              escapeKey = 27
-            ;
-            if(keyCode == escapeKey) {
-              module.debug('Escape key pressed hiding modal');
-              $context.dimmer('hide');
-              event.preventDefault();
-            }
-          },
-          resize: function() {
-            if( $context.dimmer('is active') ) {
-              module.refresh();
-            }
-          }
-        },
-
-        toggle: function() {
-          if( module.is.active() ) {
-            module.hide();
-          }
-          else {
-            module.show();
-          }
-        },
-
-        show: function() {
-          module.showDimmer();
-          module.cacheSizes();
-          module.set.position();
-          module.hideAll();
-          if(settings.transition && $.fn.transition !== undefined) {
-            $module
-              .transition(settings.transition + ' in', settings.duration, function() {
-                module.set.active();
-                module.save.focus();
-                module.set.type();
-              })
-            ;
-          }
-          else {
-            $module
-              .fadeIn(settings.duration, settings.easing, function() {
-                module.set.active();
-                module.save.focus();
-                module.set.type();
-              })
-            ;
-          }
-          module.debug('Triggering dimmer');
-          $.proxy(settings.onShow, element)();
-        },
-
-        showDimmer: function() {
-          module.debug('Showing modal');
-          module.set.dimmerSettings();
-          $context.dimmer('show');
-        },
-        hideDimmer: function() {
-          $context.dimmer('hide');
-        },
-
-        hide: function() {
-          module.debug('Hiding modal');
-          // remove keyboard detection
-          $document
-            .off('keyup.' + eventNamespace)
-          ;
-          if(settings.transition && $.fn.transition !== undefined) {
-            $module
-              .transition(settings.transition + ' out', settings.duration, function() {
-                module.remove.active();
-                module.restore.focus();
-              })
-            ;
-          }
-          else {
-            $module
-              .fadeOut(settings.duration, settings.easing, function() {
-                module.remove.active();
-                module.restore.focus();
-              })
-            ;
-          }
-          $.proxy(settings.onHide, element)();
-        },
-
-        hideAll: function() {
-          $otherModals
-            .filter(':visible')
-            .modal('hide')
-          ;
-        },
-
-        add: {
-          keyboardShortcuts: function() {
-            module.verbose('Adding keyboard shortcuts');
-            $document
-              .on('keyup' + eventNamespace, module.event.keyboard)
-            ;
-          }
-        },
-
-        save: {
-          focus: function() {
-            $focusedElement = $(document.activeElement).blur();
-          }
-        },
-
-        restore: {
-          focus: function() {
-            $focusedElement.focus();
-          }
-        },
-
-        remove: {
-          active: function() {
-            $module.removeClass(className.active);
-          },
-          keyboardShortcuts: function() {
-            module.verbose('Removing keyboard shortcuts');
-            $document
-              .off('keyup' + eventNamespace)
-            ;
-          },
-          scrolling: function() {
-            $dimmer.removeClass(className.scrolling);
-            $module.removeClass(className.scrolling);
-          }
-        },
-
-        cacheSizes: function() {
-          module.cache = {
-            height        : $module.outerHeight() + settings.offset,
-            contextHeight : (settings.context == 'body')
-              ? $(window).height()
-              : $context.height()
-          };
-          module.debug('Caching modal and container sizes', module.cache);
-        },
-
-        can: {
-          fit: function() {
-            return (module.cache.height < module.cache.contextHeight);
-          }
-        },
-
-        is: {
-          active: function() {
-            return $module.hasClass(className.active);
-          }
-        },
-
-        set: {
-          active: function() {
-            $module.addClass(className.active);
-          },
-          dimmerSettings: function() {
-            module.debug('Setting dimmer settings', settings.closable);
-            $context
-              .dimmer('setting', 'closable', settings.closable)
-              .dimmer('setting', 'duration', {
-                show : settings.duration * 0.95,
-                hide : settings.duration * 1.05
-              })
-              .dimmer('setting', 'onShow' , module.add.keyboardShortcuts)
-              .dimmer('setting', 'onHide', function() {
-                module.hide();
-                module.remove.keyboardShortcuts();
-              })
-              .dimmer('destroy')
-              .dimmer('initialize')
-            ;
-          },
-          scrolling: function() {
-            $dimmer.addClass(className.scrolling);
-            $module.addClass(className.scrolling);
-          },
-          type: function() {
-            if(module.can.fit()) {
-              module.verbose('Modal fits on screen');
-              module.remove.scrolling();
-            }
-            else {
-              module.verbose('Modal cannot fit on screen setting to scrolling');
-              module.set.scrolling();
-            }
-          },
-          position: function() {
-            module.verbose('Centering modal on page', module.cache, module.cache.height / 2);
-            if(module.can.fit()) {
-              $module
-                .css({
-                  top: '',
-                  marginTop: -(module.cache.height / 2)
-                })
-              ;
-            }
-            else {
-              $module
-                .css({
-                  marginTop : '1em',
-                  top       : $document.scrollTop()
-                })
-              ;
-            }
-          }
-        },
-
-        setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
-          }
-          else {
-            return settings[name];
-          }
-        },
-        internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -5641,14 +5176,14 @@ $.fn.modal = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -5669,8 +5204,631 @@ $.fn.modal = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue)
+    ? returnedValue
+    : this
+  ;
+};
+
+$.fn.dropdown.settings = {
+
+  name        : 'Dropdown',
+  namespace   : 'dropdown',
+
+  verbose     : true,
+  debug       : true,
+  performance : true,
+
+  on          : 'click',
+  action      : 'activate',
+
+  delay: {
+    show  : 200,
+    hide  : 300,
+    touch : 50
+  },
+
+  transition : 'slide down',
+  duration   : 250,
+
+  onChange : function(){},
+  onShow   : function(){},
+  onHide   : function(){},
+
+  error   : {
+    action    : 'You called a dropdown action that was not defined',
+    method    : 'The method you called is not defined.',
+    transition : 'The requested transition was not found'
+  },
+
+  metadata: {
+    text    : 'text',
+    value   : 'value'
+  },
+
+  selector : {
+    menu  : '.menu',
+    item  : '.menu > .item',
+    text  : '> .text',
+    input : '> input[type="hidden"]'
+  },
+
+  className : {
+    active      : 'active',
+    placeholder : 'default',
+    disabled    : 'disabled',
+    visible     : 'visible',
+    selection   : 'selection'
+  }
+
+};
+
+})( jQuery, window , document );
+/*
+ * # Semantic - Modal
+ * http://github.com/jlukic/semantic-ui/
+ *
+ *
+ * Copyright 2013 Contributors
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ */
+
+;(function ( $, window, document, undefined ) {
+
+$.fn.modal = function(parameters) {
+  var
+    $allModules = $(this),
+    $window     = $(window),
+    $document   = $(document),
+
+    time            = new Date().getTime(),
+    performance     = [],
+
+    query           = arguments[0],
+    methodInvoked   = (typeof query == 'string'),
+    queryArguments  = [].slice.call(arguments, 1),
+
+    returnedValue
+  ;
+
+
+  $allModules
+    .each(function() {
+      var
+        settings    = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.modal.settings, parameters)
+          : $.extend({}, $.fn.modal.settings),
+
+        selector        = settings.selector,
+        className       = settings.className,
+        namespace       = settings.namespace,
+        error           = settings.error,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+        moduleSelector  = $allModules.selector || '',
+
+        $module      = $(this),
+        $context     = $(settings.context),
+        $otherModals = $allModules.not($module),
+        $close       = $module.find(selector.close),
+
+        $focusedElement,
+        $dimmable,
+        $dimmer,
+
+        element      = this,
+        instance     = $module.data(moduleNamespace),
+        module
+      ;
+
+      module  = {
+
+        initialize: function() {
+          module.verbose('Initializing dimmer', $context);
+
+          if(typeof $.fn.dimmer === undefined) {
+            module.error(error.dimmer);
+            return;
+          }
+
+          $dimmable = $context
+            .dimmer({
+              closable : false,
+              show     : settings.duration * 0.95,
+              hide     : settings.duration * 1.05
+            })
+            .dimmer('add content', $module)
+          ;
+          $dimmer = $dimmable
+            .dimmer('get dimmer')
+          ;
+
+          module.verbose('Attaching close events', $close);
+          $close
+            .on('click' + eventNamespace, module.event.close)
+          ;
+          $window
+            .on('resize', function() {
+              module.event.debounce(module.refresh, 50);
+            })
+          ;
+          module.instantiate();
+        },
+
+        instantiate: function() {
+          module.verbose('Storing instance of modal');
+          instance = module;
+          $module
+            .data(moduleNamespace, instance)
+          ;
+        },
+
+        destroy: function() {
+          module.verbose('Destroying previous modal');
+          $module
+            .removeData(moduleNamespace)
+            .off(eventNamespace)
+          ;
+          $close
+            .off(eventNamespace)
+          ;
+          $context
+            .dimmer('destroy')
+          ;
+        },
+
+        refresh: function() {
+          module.remove.scrolling();
+          module.cacheSizes();
+          module.set.type();
+          module.set.position();
+        },
+
+        attachEvents: function(selector, event) {
+          var
+            $toggle = $(selector)
+          ;
+          event = $.isFunction(module[event])
+            ? module[event]
+            : module.toggle
+          ;
+          if($toggle.size() > 0) {
+            module.debug('Attaching modal events to element', selector, event);
+            $toggle
+              .off(eventNamespace)
+              .on('click' + eventNamespace, event)
+            ;
+          }
+          else {
+            module.error(error.notFound);
+          }
+        },
+
+        event: {
+          close: function() {
+            module.verbose('Closing element pressed');
+            if( $(this).is(selector.approve) ) {
+              if($.proxy(settings.onApprove, element)()) {
+                module.hide();
+              }
+              else {
+                module.verbose('Approve callback returned false cancelling hide');
+              }
+            }
+            else if( $(this).is(selector.deny) ) {
+              if($.proxy(settings.onDeny, element)()) {
+                module.hide();
+              }
+              else {
+                module.verbose('Deny callback returned false cancelling hide');
+              }
+            }
+            else {
+              module.hide();
+            }
+          },
+          click: function(event) {
+            module.verbose('Determining if event occured on dimmer', event);
+            if( $dimmer.find(event.target).size() === 0 ) {
+              module.hide();
+              event.stopImmediatePropagation();
+            }
+          },
+          debounce: function(method, delay) {
+            clearTimeout(module.timer);
+            module.timer = setTimeout(method, delay);
+          },
+          keyboard: function(event) {
+            var
+              keyCode   = event.which,
+              escapeKey = 27
+            ;
+            if(keyCode == escapeKey) {
+              if(settings.closable) {
+                module.debug('Escape key pressed hiding modal');
+                module.hide();
+              }
+              else {
+                module.debug('Escape key pressed, but closable is set to false');
+              }
+              event.preventDefault();
+            }
+          },
+          resize: function() {
+            if( $dimmable.dimmer('is active') ) {
+              module.refresh();
+            }
+          }
+        },
+
+        toggle: function() {
+          if( module.is.active() ) {
+            module.hide();
+          }
+          else {
+            module.show();
+          }
+        },
+
+        show: function() {
+          module.showDimmer();
+          module.cacheSizes();
+          module.set.position();
+          module.hideAll();
+          if(settings.transition && $.fn.transition !== undefined) {
+            $module
+              .transition(settings.transition + ' in', settings.duration, module.set.active)
+            ;
+          }
+          else {
+            $module
+              .fadeIn(settings.duration, settings.easing, module.set.active)
+            ;
+          }
+          module.debug('Triggering dimmer');
+          $.proxy(settings.onShow, element)();
+        },
+
+        showDimmer: function() {
+          module.debug('Showing modal');
+          $dimmable.dimmer('show');
+        },
+
+        hide: function() {
+          if(settings.closable) {
+            $dimmer
+              .off('click' + eventNamespace)
+            ;
+          }
+          if( $dimmable.dimmer('is active') ) {
+            $dimmable.dimmer('hide');
+          }
+          if( module.is.active() ) {
+            module.hideModal();
+            $.proxy(settings.onHide, element)();
+          }
+          else {
+            module.debug('Cannot hide modal, modal is not visible');
+          }
+        },
+
+        hideDimmer: function() {
+          module.debug('Hiding dimmer');
+          $dimmable.dimmer('hide');
+        },
+
+        hideModal: function() {
+          module.debug('Hiding modal');
+          module.remove.keyboardShortcuts();
+          if(settings.transition && $.fn.transition !== undefined) {
+            $module
+              .transition(settings.transition + ' out', settings.duration, function() {
+                module.remove.active();
+                module.restore.focus();
+              })
+            ;
+          }
+          else {
+            $module
+              .fadeOut(settings.duration, settings.easing, function() {
+                module.remove.active();
+                module.restore.focus();
+              })
+            ;
+          }
+        },
+
+        hideAll: function() {
+          $otherModals
+            .filter(':visible')
+            .modal('hide')
+          ;
+        },
+
+        add: {
+          keyboardShortcuts: function() {
+            module.verbose('Adding keyboard shortcuts');
+            $document
+              .on('keyup' + eventNamespace, module.event.keyboard)
+            ;
+          }
+        },
+
+        save: {
+          focus: function() {
+            $focusedElement = $(document.activeElement).blur();
+          }
+        },
+
+        restore: {
+          focus: function() {
+            if($focusedElement && $focusedElement.size() > 0) {
+              $focusedElement.focus();
+            }
+          }
+        },
+
+        remove: {
+          active: function() {
+            $module.removeClass(className.active);
+          },
+          keyboardShortcuts: function() {
+            module.verbose('Removing keyboard shortcuts');
+            $document
+              .off('keyup' + eventNamespace)
+            ;
+          },
+          scrolling: function() {
+            $dimmable.removeClass(className.scrolling);
+            $module.removeClass(className.scrolling);
+          }
+        },
+
+        cacheSizes: function() {
+          module.cache = {
+            height        : $module.outerHeight() + settings.offset,
+            contextHeight : (settings.context == 'body')
+              ? $(window).height()
+              : $dimmable.height()
+          };
+          module.debug('Caching modal and container sizes', module.cache);
+        },
+
+        can: {
+          fit: function() {
+            return (module.cache.height < module.cache.contextHeight);
+          }
+        },
+
+        is: {
+          active: function() {
+            return $module.hasClass(className.active);
+          }
+        },
+
+        set: {
+          active: function() {
+            module.add.keyboardShortcuts();
+            module.save.focus();
+            module.set.type();
+            $module
+              .addClass(className.active)
+            ;
+            if(settings.closable) {
+              $dimmer
+                .on('click' + eventNamespace, module.event.click)
+              ;
+            }
+          },
+          scrolling: function() {
+            $dimmable.addClass(className.scrolling);
+            $module.addClass(className.scrolling);
+          },
+          type: function() {
+            if(module.can.fit()) {
+              module.verbose('Modal fits on screen');
+              module.remove.scrolling();
+            }
+            else {
+              module.verbose('Modal cannot fit on screen setting to scrolling');
+              module.set.scrolling();
+            }
+          },
+          position: function() {
+            module.verbose('Centering modal on page', module.cache, module.cache.height / 2);
+            if(module.can.fit()) {
+              $module
+                .css({
+                  top: '',
+                  marginTop: -(module.cache.height / 2)
+                })
+              ;
+            }
+            else {
+              $module
+                .css({
+                  marginTop : '1em',
+                  top       : $document.scrollTop()
+                })
+              ;
+            }
+          }
+        },
+
+        setting: function(name, value) {
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
+          }
+          else {
+            return settings[name];
+          }
+        },
+        internal: function(name, value) {
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
+          }
+          else {
+            return module[name];
+          }
+        },
+        debug: function() {
+          if(settings.debug) {
+            if(settings.performance) {
+              module.performance.log(arguments);
+            }
+            else {
+              module.debug = Function.prototype.bind.call(console.info, console, settings.name + ':');
+              module.debug.apply(console, arguments);
+            }
+          }
+        },
+        verbose: function() {
+          if(settings.verbose && settings.debug) {
+            if(settings.performance) {
+              module.performance.log(arguments);
+            }
+            else {
+              module.verbose = Function.prototype.bind.call(console.info, console, settings.name + ':');
+              module.verbose.apply(console, arguments);
+            }
+          }
+        },
+        error: function() {
+          module.error = Function.prototype.bind.call(console.error, console, settings.name + ':');
+          module.error.apply(console, arguments);
+        },
+        performance: {
+          log: function(message) {
+            var
+              currentTime,
+              executionTime,
+              previousTime
+            ;
+            if(settings.performance) {
+              currentTime   = new Date().getTime();
+              previousTime  = time || currentTime;
+              executionTime = currentTime - previousTime;
+              time          = currentTime;
+              performance.push({
+                'Element'        : element,
+                'Name'           : message[0],
+                'Arguments'      : [].slice.call(message, 1) || '',
+                'Execution Time' : executionTime
+              });
+            }
+            clearTimeout(module.performance.timer);
+            module.performance.timer = setTimeout(module.performance.display, 100);
+          },
+          display: function() {
+            var
+              title = settings.name + ':',
+              totalTime = 0
+            ;
+            time = false;
+            clearTimeout(module.performance.timer);
+            $.each(performance, function(index, data) {
+              totalTime += data['Execution Time'];
+            });
+            title += ' ' + totalTime + 'ms';
+            if(moduleSelector) {
+              title += ' \'' + moduleSelector + '\'';
+            }
+            if( (console.group !== undefined || console.table !== undefined) && performance.length > 0) {
+              console.groupCollapsed(title);
+              if(console.table) {
+                console.table(performance);
+              }
+              else {
+                $.each(performance, function(index, data) {
+                  console.log(data['Name'] + ': ' + data['Execution Time']+'ms');
+                });
+              }
+              console.groupEnd();
+            }
+            performance = [];
+          }
+        },
+        invoke: function(query, passedArguments, context) {
+          var
+            maxDepth,
+            found,
+            response
+          ;
+          passedArguments = passedArguments || queryArguments;
+          context         = element         || context;
+          if(typeof query == 'string' && instance !== undefined) {
+            query    = query.split(/[\. ]/);
+            maxDepth = query.length - 1;
+            $.each(query, function(depth, value) {
+              var camelCaseValue = (depth != maxDepth)
+                ? value + query[depth + 1].charAt(0).toUpperCase() + query[depth + 1].slice(1)
+                : query
+              ;
+              if( $.isPlainObject( instance[value] ) && (depth != maxDepth) ) {
+                instance = instance[value];
+              }
+              else if( $.isPlainObject( instance[camelCaseValue] ) && (depth != maxDepth) ) {
+                instance = instance[camelCaseValue];
+              }
+              else if( instance[value] !== undefined ) {
+                found = instance[value];
+                return false;
+              }
+              else if( instance[camelCaseValue] !== undefined ) {
+                found = instance[camelCaseValue];
+                return false;
+              }
+              else {
+                module.error(error.method);
+                return false;
+              }
+            });
+          }
+          if ( $.isFunction( found ) ) {
+            response = found.apply(context, passedArguments);
+          }
+          else if(found !== undefined) {
+            response = found;
+          }
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
+          }
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
+          }
+          else if(response !== undefined) {
+            returnedValue = response;
+          }
+          return found;
+        }
+      };
+
+      if(methodInvoked) {
+        if(instance === undefined) {
+          module.initialize();
+        }
+        module.invoke(query);
+      }
+      else {
+        if(instance !== undefined) {
+          module.destroy();
+        }
+        module.initialize();
+      }
+    })
+  ;
+
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -5692,12 +5850,17 @@ $.fn.modal.settings = {
 
   onShow      : function(){},
   onHide      : function(){},
+  onApprove   : function(){ return true; },
+  onDeny      : function(){ return true; },
 
   selector    : {
-    close : '.close, .actions .button'
+    close    : '.close, .actions .button',
+    approve  : '.actions .positive, .actions .approve',
+    deny     : '.actions .negative, .actions .cancel'
   },
   error : {
-    method : 'The method you called is not defined.'
+    dimmer    : 'UI Dimmer, a required component is not included in this page',
+    method    : 'The method you called is not defined.'
   },
   className : {
     active    : 'active',
@@ -5723,15 +5886,6 @@ $.fn.modal.settings = {
 $.fn.nag = function(parameters) {
   var
     $allModules     = $(this),
-    settings        = $.extend(true, {}, $.fn.nag.settings, parameters),
-
-    className       = settings.className,
-    selector        = settings.selector,
-    error           = settings.error,
-    namespace       = settings.namespace,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = namespace + '-module',
     moduleSelector  = $allModules.selector || '',
 
     time            = new Date().getTime(),
@@ -5740,11 +5894,21 @@ $.fn.nag = function(parameters) {
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
   $(this)
     .each(function() {
       var
+        settings        = $.extend(true, {}, $.fn.nag.settings, parameters),
+
+        className       = settings.className,
+        selector        = settings.selector,
+        error           = settings.error,
+        namespace       = settings.namespace,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = namespace + '-module',
+
         $module         = $(this),
 
         $close          = $module.find(selector.close),
@@ -6007,14 +6171,11 @@ $.fn.nag = function(parameters) {
           }
         },
         setting: function(name, value) {
-          module.debug('Changing setting', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
@@ -6156,14 +6317,14 @@ $.fn.nag = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -6183,8 +6344,8 @@ $.fn.nag = function(parameters) {
 
     })
   ;
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -6270,10 +6431,7 @@ $.fn.popup = function(parameters) {
   var
     $allModules     = $(this),
     $document       = $(document),
-
-    settings        = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.popup.settings, parameters)
-      : $.fn.popup.settings,
+    $body           = $('body'),
 
     moduleSelector  = $allModules.selector || '',
 
@@ -6284,29 +6442,39 @@ $.fn.popup = function(parameters) {
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
 
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
       var
-        $module         = $(this),
-
-        $window         = $(window),
-        $offsetParent   = $module.offsetParent(),
-        $popup          = (settings.inline)
-          ? $module.next(settings.selector.popup)
-          : $window.children(settings.selector.popup).last(),
-
-        searchDepth     = 0,
-
-        eventNamespace  = '.' + settings.namespace,
-        moduleNamespace = settings.namespace + '-module',
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.popup.settings, parameters)
+          : $.extend({}, $.fn.popup.settings),
 
         selector        = settings.selector,
         className       = settings.className,
         error           = settings.error,
         metadata        = settings.metadata,
         namespace       = settings.namespace,
+
+        eventNamespace  = '.' + settings.namespace,
+        moduleNamespace = 'module-' + namespace,
+
+        $module         = $(this),
+        $target         = (settings.target)
+          ? $(settings.target)
+          : $module,
+
+        $window         = $(window),
+
+        $offsetParent   = (settings.inline)
+          ? $target.offsetParent()
+          : $window,
+        $popup          = (settings.inline)
+          ? $target.next(settings.selector.popup)
+          : $window.children(settings.selector.popup).last(),
+
+        searchDepth     = 0,
 
         element         = this,
         instance        = $module.data(moduleNamespace),
@@ -6318,16 +6486,19 @@ $.fn.popup = function(parameters) {
         // binds events
         initialize: function() {
           module.debug('Initializing module', $module);
-          if(settings.on == 'hover') {
+          if(settings.on == 'click') {
             $module
-              .on('mouseenter' + eventNamespace, module.event.mouseenter)
-              .on('mouseleave' + eventNamespace, module.event.mouseleave)
+              .on('click', module.toggle)
             ;
           }
           else {
             $module
-              .on(settings.on + '' + eventNamespace, module.event[settings.on])
+              .on(module.get.startEvent() + eventNamespace, module.event.start)
+              .on(module.get.endEvent() + eventNamespace, module.event.end)
             ;
+          }
+          if(settings.target) {
+            module.debug('Target set to element', $target);
           }
           $window
             .on('resize' + eventNamespace, module.event.resize)
@@ -6344,15 +6515,24 @@ $.fn.popup = function(parameters) {
         },
 
         refresh: function() {
-          $popup        = (settings.inline)
-            ? $module.next(selector.popup)
-            : $window.children(selector.popup).last()
-          ;
-          $offsetParent = $module.offsetParent();
+          if(settings.inline) {
+            $popup = $target.next(selector.popup);
+            $offsetParent = $target.offsetParent();
+          }
+          else {
+            console.log('found by refresh');
+            $popup = $window.children(selector.popup).last();
+          }
         },
 
         destroy: function() {
           module.debug('Destroying previous module');
+          $window
+            .off(eventNamespace)
+          ;
+          $popup
+            .remove()
+          ;
           $module
             .off(eventNamespace)
             .removeData(moduleNamespace)
@@ -6360,30 +6540,22 @@ $.fn.popup = function(parameters) {
         },
 
         event: {
-          mouseenter:  function(event) {
-            var element = this;
+          start:  function(event) {
             module.timer = setTimeout(function() {
-              $.proxy(module.toggle, element)();
-              if( $(element).hasClass(className.visible) ) {
-                event.stopPropagation();
+              if( module.is.hidden() ) {
+                module.show();
               }
             }, settings.delay);
           },
-          mouseleave:  function() {
+          end:  function() {
             clearTimeout(module.timer);
-            if( $module.is(':visible') ) {
+            if( module.is.visible() ) {
               module.hide();
             }
           },
-          click: function(event) {
-            $.proxy(module.toggle, this)();
-            if( $(this).hasClass(className.visible) ) {
-              event.stopPropagation();
-            }
-          },
           resize: function() {
-            if( $popup.is(':visible') ) {
-              module.position();
+            if( module.is.visible() ) {
+              module.set.position();
             }
           }
         },
@@ -6410,21 +6582,81 @@ $.fn.popup = function(parameters) {
               .html(html)
             ;
             if(settings.inline) {
-              module.verbose('Inserting popup element inline');
+              module.verbose('Inserting popup element inline', $popup);
               $popup
                 .insertAfter($module)
               ;
             }
             else {
-              module.verbose('Appending popup element to body');
+              module.verbose('Appending popup element to body', $popup);
               $popup
-                .appendTo( $('body') )
+                .appendTo( $body )
               ;
             }
-            $.proxy(settings.onInit, $popup)();
+            $.proxy(settings.onCreate, $popup)();
           }
           else {
             module.error(error.content);
+          }
+        },
+
+        // determines popup state
+        toggle: function() {
+          module.debug('Toggling pop-up');
+          if( module.is.hidden() ) {
+            module.hideAll();
+            module.show();
+          }
+          else {
+            module.hide();
+          }
+        },
+
+        show: function(callback) {
+          callback = callback || function(){};
+          module.debug('Showing pop-up', settings.transition);
+          if(!settings.preserve) {
+            module.refresh();
+          }
+          if( !module.exists() ) {
+            module.create();
+          }
+          module.set.position();
+          module.animate.show(callback);
+        },
+
+
+        hide: function(callback) {
+          callback = callback || function(){};
+          $module
+            .removeClass(className.visible)
+          ;
+          module.unbind.close();
+          if( module.is.visible() ) {
+            module.animate.hide(callback);
+          }
+        },
+
+        hideAll: function() {
+          $(selector.popup)
+            .filter(':visible')
+              .popup('hide')
+          ;
+        },
+
+        hideGracefully: function(event) {
+          // don't close on clicks inside popup
+          if( $(event.target).closest(selector.popup).size() === 0) {
+            module.hide();
+          }
+        },
+
+        exists: function() {
+          if(settings.inline) {
+            return ( $popup.size() !== 0 );
+          }
+          else {
+            return ( $popup.parent($body).size() );
           }
         },
 
@@ -6435,7 +6667,72 @@ $.fn.popup = function(parameters) {
           ;
         },
 
+        animate: {
+          show: function(callback) {
+            callback = callback || function(){};
+            $module
+              .addClass(className.visible)
+            ;
+            if(settings.transition && $.fn.transition !== undefined) {
+              $popup
+                .transition(settings.transition + ' in', settings.duration, function() {
+                  module.bind.close();
+                  $.proxy(callback, element)();
+                })
+              ;
+            }
+            else {
+              $popup
+                .stop()
+                .fadeIn(settings.duration, settings.easing, function() {
+                  module.bind.close();
+                  $.proxy(callback, element)();
+                })
+              ;
+            }
+            $.proxy(settings.onShow, element)();
+          },
+          hide: function(callback) {
+            callback = callback || function(){};
+            module.debug('Hiding pop-up');
+            if(settings.transition && $.fn.transition !== undefined) {
+              $popup
+                .transition(settings.transition + ' out', settings.duration, function() {
+                  module.reset();
+                  callback();
+                })
+              ;
+            }
+            else {
+              $popup
+                .stop()
+                .fadeOut(settings.duration, settings.easing, function() {
+                  module.reset();
+                  callback();
+                })
+              ;
+            }
+            $.proxy(settings.onHide, element)();
+          }
+        },
+
         get: {
+          startEvent: function() {
+            if(settings.on == 'hover') {
+              return 'mouseenter';
+            }
+            else if(settings.on == 'focus') {
+              return 'focus';
+            }
+          },
+          endEvent: function() {
+            if(settings.on == 'hover') {
+              return 'mouseleave';
+            }
+            else if(settings.on == 'focus') {
+              return 'blur';
+            }
+          },
           offstagePosition: function() {
             var
               boundary  = {
@@ -6503,252 +6800,201 @@ $.fn.popup = function(parameters) {
           }
         },
 
-        // determines popup state
-        toggle: function() {
-          $module = $(this);
-          module.debug('Toggling pop-up');
-          // refresh state of module
-          module.refresh();
-          if( !$module.hasClass(className.visible) ) {
-            if(settings.on == 'click') {
-              module.hideAll();
+        set: {
+          position: function(position, arrowOffset) {
+            var
+              windowWidth  = $(window).width(),
+              windowHeight = $(window).height(),
+
+              width        = $target.outerWidth(),
+              height       = $target.outerHeight(),
+
+              popupWidth   = $popup.width(),
+              popupHeight  = $popup.outerHeight(),
+
+              parentWidth  = $offsetParent.outerWidth(),
+              parentHeight = $offsetParent.outerHeight(),
+
+              distanceAway = settings.distanceAway,
+
+              offset       = (settings.inline)
+                ? $target.position()
+                : $target.offset(),
+
+              positioning,
+              offstagePosition
+            ;
+            position    = position    || $module.data(metadata.position)    || settings.position;
+            arrowOffset = arrowOffset || $module.data(metadata.offset)      || settings.offset;
+            // adjust for margin when inline
+            if(settings.inline) {
+              if(position == 'left center' || position == 'right center') {
+                arrowOffset  += parseInt( window.getComputedStyle(element).getPropertyValue('margin-top'), 10);
+                distanceAway += -parseInt( window.getComputedStyle(element).getPropertyValue('margin-left'), 10);
+              }
+              else {
+                arrowOffset  += parseInt( window.getComputedStyle(element).getPropertyValue('margin-left'), 10);
+                distanceAway += parseInt( window.getComputedStyle(element).getPropertyValue('margin-top'), 10);
+              }
             }
-            module.show();
-          }
-          else {
-            // module.hide();
-          }
-        },
+            module.debug('Calculating offset for position', position);
+            switch(position) {
+              case 'top left':
+                positioning = {
+                  bottom :  parentHeight - offset.top + distanceAway,
+                  right  :  parentWidth - offset.left - arrowOffset,
+                  top    : 'auto',
+                  left   : 'auto'
+                };
+              break;
+              case 'top center':
+                positioning = {
+                  bottom :  parentHeight - offset.top + distanceAway,
+                  left   : offset.left + (width / 2) - (popupWidth / 2) + arrowOffset,
+                  top    : 'auto',
+                  right  : 'auto'
+                };
+              break;
+              case 'top right':
+                positioning = {
+                  top    : 'auto',
+                  bottom :  parentHeight - offset.top + distanceAway,
+                  left   : offset.left + width + arrowOffset,
+                  right  : 'auto'
+                };
+              break;
+              case 'left center':
+                positioning = {
+                  top    :  offset.top + (height / 2) - (popupHeight / 2) + arrowOffset,
+                  right  : parentWidth - offset.left + distanceAway,
+                  left   : 'auto',
+                  bottom : 'auto'
+                };
+              break;
+              case 'right center':
+                positioning = {
+                  top    :  offset.top + (height / 2) - (popupHeight / 2) + arrowOffset,
+                  left   : offset.left + width + distanceAway,
+                  bottom : 'auto',
+                  right  : 'auto'
+                };
+              break;
+              case 'bottom left':
+                positioning = {
+                  top    :  offset.top + height + distanceAway,
+                  right  : parentWidth - offset.left - arrowOffset,
+                  left   : 'auto',
+                  bottom : 'auto'
+                };
+              break;
+              case 'bottom center':
+                positioning = {
+                  top    :  offset.top + height + distanceAway,
+                  left   : offset.left + (width / 2) - (popupWidth / 2) + arrowOffset,
+                  bottom : 'auto',
+                  right  : 'auto'
+                };
+              break;
+              case 'bottom right':
+                positioning = {
+                  top    :  offset.top + height + distanceAway,
+                  left   : offset.left + width + arrowOffset,
+                  bottom : 'auto',
+                  right  : 'auto'
+                };
+              break;
+            }
+            // tentatively place on stage
+            $popup
+              .css(positioning)
+              .removeClass(className.position)
+              .addClass(position)
+            ;
+            // check if is offstage
+            offstagePosition = module.get.offstagePosition();
 
-        position: function(position, arrowOffset) {
-          var
-            windowWidth  = $(window).width(),
-            windowHeight = $(window).height(),
-            width        = $module.outerWidth(),
-            height       = $module.outerHeight(),
-            popupWidth   = $popup.width(),
-            popupHeight  = $popup.outerHeight(),
-
-            offset       = (settings.inline)
-              ? $module.position()
-              : $module.offset(),
-            parentWidth  = (settings.inline)
-              ? $offsetParent.outerWidth()
-              : $window.outerWidth(),
-            parentHeight = (settings.inline)
-              ? $offsetParent.outerHeight()
-              : $window.outerHeight(),
-
-            positioning,
-            offstagePosition
-          ;
-          position    = position    || $module.data(metadata.position)    || settings.position;
-          arrowOffset = arrowOffset || $module.data(metadata.arrowOffset) || settings.arrowOffset;
-          module.debug('Calculating offset for position', position);
-          switch(position) {
-            case 'top left':
-              positioning = {
-                bottom :  parentHeight - offset.top + settings.distanceAway,
-                right  :  parentWidth - offset.left - width - arrowOffset,
-                top    : 'auto',
-                left   : 'auto'
-              };
-            break;
-            case 'top center':
-              positioning = {
-                bottom :  parentHeight - offset.top + settings.distanceAway,
-                left   : offset.left + (width / 2) - (popupWidth / 2) + arrowOffset,
-                top    : 'auto',
-                right  : 'auto'
-              };
-            break;
-            case 'top right':
-              positioning = {
-                top    : 'auto',
-                bottom :  parentHeight - offset.top + settings.distanceAway,
-                left   : offset.left + arrowOffset
-              };
-            break;
-            case 'left center':
-              positioning = {
-                top    :  offset.top + (height / 2) - (popupHeight / 2),
-                right  : parentWidth - offset.left + settings.distanceAway - arrowOffset,
-                left   : 'auto',
-                bottom : 'auto'
-              };
-            break;
-            case 'right center':
-              positioning = {
-                top    :  offset.top + (height / 2) - (popupHeight / 2),
-                left   : offset.left + width + settings.distanceAway + arrowOffset,
-                bottom : 'auto',
-                right  : 'auto'
-              };
-            break;
-            case 'bottom left':
-              positioning = {
-                top    :  offset.top + height + settings.distanceAway,
-                right  : parentWidth - offset.left - width - arrowOffset,
-                left   : 'auto',
-                bottom : 'auto'
-              };
-            break;
-            case 'bottom center':
-              positioning = {
-                top    :  offset.top + height + settings.distanceAway,
-                left   : offset.left + (width / 2) - (popupWidth / 2) + arrowOffset,
-                bottom : 'auto',
-                right  : 'auto'
-              };
-            break;
-            case 'bottom right':
-              positioning = {
-                top    :  offset.top + height + settings.distanceAway,
-                left   : offset.left + arrowOffset,
-                bottom : 'auto',
-                right  : 'auto'
-              };
-            break;
-          }
-          // true width on popup, avoid rounding error
-          $.extend(positioning, {
-            width: $popup.width() + 1
-          });
-          // tentatively place on stage
-          $popup
-            .attr('class', position + ' ' + className.popup + ' ' + className.loading)
-            .css(positioning)
-          ;
-          // check if is offstage
-          offstagePosition = module.get.offstagePosition();
-          // recursively find new positioning
-          if(offstagePosition) {
-            module.debug('Element is outside boundaries ', offstagePosition);
-            if(searchDepth < settings.maxSearchDepth) {
-              position = module.get.nextPosition(position);
-              searchDepth++;
-              module.debug('Trying new position: ', position);
-              return module.position(position);
+            // recursively find new positioning
+            if(offstagePosition) {
+              module.debug('Element is outside boundaries', offstagePosition);
+              if(searchDepth < settings.maxSearchDepth) {
+                position = module.get.nextPosition(position);
+                searchDepth++;
+                module.debug('Trying new position', position);
+                return module.set.position(position);
+              }
+              else {
+                module.error(error.recursion);
+                searchDepth = 0;
+                return false;
+              }
             }
             else {
-              module.error(error.recursion);
+              module.debug('Position is on stage', position);
               searchDepth = 0;
-              return false;
+              return true;
             }
           }
-          else {
-            module.debug('Position is on stage', position);
-            searchDepth = 0;
-            return true;
-          }
+
         },
 
-        show: function() {
-          module.debug('Showing pop-up', settings.transition);
-          if($popup.size() === 0) {
-            module.create();
-          }
-          module.position();
-          $module
-            .addClass(className.visible)
-          ;
-          $popup
-            .removeClass(className.loading)
-          ;
-          if(settings.transition && $.fn.transition !== undefined) {
-            $popup
-              .transition(settings.transition + ' in', settings.duration)
-            ;
-          }
-          else {
-            $popup
-              .stop()
-              .fadeIn(settings.duration, settings.easing)
-            ;
-          }
-          if(settings.on == 'click' && settings.clicktoClose) {
-            module.debug('Binding popup close event');
-            $document
-              .on('click.' + namespace, module.gracefully.hide)
-            ;
-          }
-          $.proxy(settings.onShow, $popup)();
-        },
-
-        hideAll: function() {
-          $(selector.popup)
-            .filter(':visible')
-              .popup('hide')
-          ;
-        },
-
-        hide: function() {
-          $module
-            .removeClass(className.visible)
-          ;
-          if($popup.is(':visible') ) {
-            module.debug('Hiding pop-up');
-            if(settings.transition && $.fn.transition !== undefined) {
-              $popup
-                .transition(settings.transition + ' out', settings.duration, module.reset)
-              ;
-            }
-            else {
-              $popup
-                .stop()
-                .fadeOut(settings.duration, settings.easing, module.reset)
+        bind: {
+          close:function() {
+            if(settings.on == 'click' && settings.closable) {
+              module.verbose('Binding popup close event to document');
+              $document
+                .on('click' + eventNamespace, module.hideGracefully)
               ;
             }
           }
-          if(settings.on == 'click' && settings.clicktoClose) {
-            $document
-              .off('click.' + namespace)
-            ;
+        },
+
+        unbind: {
+          close: function() {
+            if(settings.on == 'click' && settings.closable) {
+              module.verbose('Removing close event from document');
+              $document
+                .off('click' + eventNamespace)
+              ;
+            }
           }
-          $.proxy(settings.onHide, $popup)();
-          if(!settings.inline) {
-            module.remove();
+        },
+
+        is: {
+          visible: function() {
+            return $popup.is(':visible');
+          },
+          hidden: function() {
+            return !module.is.visible();
           }
         },
 
         reset: function() {
-          module.verbose('Resetting inline styles');
           $popup
             .attr('style', '')
             .removeAttr('style')
           ;
-        },
-
-        gracefully: {
-          hide: function(event) {
-            // don't close on clicks inside popup
-            if( $(event.target).closest(selector.popup).size() === 0) {
-              module.hide();
-            }
+          if(!settings.preserve) {
+            module.remove();
           }
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -6862,7 +7108,7 @@ $.fn.popup = function(parameters) {
                 return false;
               }
               else {
-                module.error(error.method);
+                module.error(error.method, query);
                 return false;
               }
             });
@@ -6873,14 +7119,14 @@ $.fn.popup = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -6901,8 +7147,8 @@ $.fn.popup = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -6915,7 +7161,7 @@ $.fn.popup.settings = {
   performance    : true,
   namespace      : 'popup',
 
-  onInit         : function(){},
+  onCreate       : function(){},
   onShow         : function(){},
   onHide         : function(){},
 
@@ -6925,18 +7171,20 @@ $.fn.popup.settings = {
   title          : false,
 
   on             : 'hover',
-  clicktoClose   : true,
+  target         : false,
+  closable       : true,
 
   position       : 'top center',
   delay          : 150,
-  inline         : true,
+  inline         : false,
+  preserve       : false,
 
-  duration       : 150,
+  duration       : 250,
   easing         : 'easeOutQuint',
   transition     : 'scale',
 
   distanceAway   : 0,
-  arrowOffset    : 0,
+  offset         : 0,
   maxSearchDepth : 10,
 
   error: {
@@ -6946,18 +7194,19 @@ $.fn.popup.settings = {
   },
 
   metadata: {
-    arrowOffset : 'arrowOffset',
-    content     : 'content',
-    html        : 'html',
-    position    : 'position',
-    title       : 'title',
-    variation   : 'variation'
+    content   : 'content',
+    html      : 'html',
+    offset    : 'offset',
+    position  : 'position',
+    title     : 'title',
+    variation : 'variation'
   },
 
   className   : {
+    loading     : 'loading',
     popup       : 'ui popup',
-    visible     : 'visible',
-    loading     : 'loading'
+    position    : 'top left center bottom right',
+    visible     : 'visible'
   },
 
   selector    : {
@@ -7005,12 +7254,14 @@ $.fn.rating = function(parameters) {
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
       var
-        settings        = $.extend(true, {}, $.fn.rating.settings, parameters),
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.rating.settings, parameters)
+          : $.extend({}, $.fn.rating.settings),
 
         namespace       = settings.namespace,
         className       = settings.className,
@@ -7021,11 +7272,12 @@ $.fn.rating = function(parameters) {
         eventNamespace  = '.' + namespace,
         moduleNamespace = 'module-' + namespace,
 
+        element         = this,
+        instance        = $(this).data(moduleNamespace),
+
         $module         = $(this),
         $icon           = $module.find(selector.icon),
 
-        element         = this,
-        instance        = $module.data(moduleNamespace),
         module
       ;
 
@@ -7054,12 +7306,14 @@ $.fn.rating = function(parameters) {
 
         instantiate: function() {
           module.verbose('Instantiating module', settings);
+          instance = module;
           $module
             .data(moduleNamespace, module)
           ;
         },
 
         destroy: function() {
+          module.verbose('Destroying previous instance', instance);
           $module
             .removeData(moduleNamespace)
           ;
@@ -7170,26 +7424,22 @@ $.fn.rating = function(parameters) {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -7257,6 +7507,9 @@ $.fn.rating = function(parameters) {
             if(moduleSelector) {
               title += ' \'' + moduleSelector + '\'';
             }
+            if($allModules.size() > 1) {
+              title += ' ' + '(' + $allModules.size() + ')';
+            }
             if( (console.group !== undefined || console.table !== undefined) && performance.length > 0) {
               console.groupCollapsed(title);
               if(console.table) {
@@ -7314,19 +7567,18 @@ $.fn.rating = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
       };
-
       if(methodInvoked) {
         if(instance === undefined) {
           module.initialize();
@@ -7342,8 +7594,8 @@ $.fn.rating = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -7401,16 +7653,6 @@ $.fn.rating.settings = {
 $.fn.search = function(source, parameters) {
   var
     $allModules     = $(this),
-    settings        = $.extend(true, {}, $.fn.search.settings, parameters),
-
-
-    className       = settings.className,
-    selector        = settings.selector,
-    error           = settings.error,
-    namespace       = settings.namespace,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = namespace + '-module',
     moduleSelector  = $allModules.selector || '',
 
     time            = new Date().getTime(),
@@ -7419,20 +7661,30 @@ $.fn.search = function(source, parameters) {
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
   $(this)
     .each(function() {
       var
-        $module       = $(this),
-        $prompt       = $module.find(selector.prompt),
-        $searchButton = $module.find(selector.searchButton),
-        $results      = $module.find(selector.results),
-        $result       = $module.find(selector.result),
-        $category     = $module.find(selector.category),
+        settings        = $.extend(true, {}, $.fn.search.settings, parameters),
 
-        element       = this,
-        instance      = $module.data(moduleNamespace),
+        className       = settings.className,
+        selector        = settings.selector,
+        error           = settings.error,
+        namespace       = settings.namespace,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = namespace + '-module',
+
+        $module         = $(this),
+        $prompt         = $module.find(selector.prompt),
+        $searchButton   = $module.find(selector.searchButton),
+        $results        = $module.find(selector.results),
+        $result         = $module.find(selector.result),
+        $category       = $module.find(selector.category),
+
+        element         = this,
+        instance        = $module.data(moduleNamespace),
 
         module
       ;
@@ -7792,28 +8044,22 @@ $.fn.search = function(source, parameters) {
         },
 
         setting: function(name, value) {
-          module.debug('Changing setting', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          module.debug('Changing internal', name, value);
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -7941,14 +8187,14 @@ $.fn.search = function(source, parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -7969,8 +8215,8 @@ $.fn.search = function(source, parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -8173,19 +8419,7 @@ $.fn.search.settings = {
 $.fn.shape = function(parameters) {
   var
     $allModules     = $(this),
-
-    moduleSelector  = $allModules.selector || '',
-    settings        = $.extend(true, {}, $.fn.shape.settings, parameters),
-
-    // internal aliases
-    namespace     = settings.namespace,
-    selector      = settings.selector,
-    error         = settings.error,
-    className     = settings.className,
-
-    // define namespaces for modules
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
+    $body           = $('body'),
 
     time            = new Date().getTime(),
     performance     = [],
@@ -8193,18 +8427,32 @@ $.fn.shape = function(parameters) {
     query           = arguments[0],
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
+        moduleSelector  = $allModules.selector || '',
+        settings        = $.extend(true, {}, $.fn.shape.settings, parameters),
+
+        // internal aliases
+        namespace     = settings.namespace,
+        selector      = settings.selector,
+        error         = settings.error,
+        className     = settings.className,
+
+        // define namespaces for modules
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+
         // selector cache
         $module       = $(this),
         $sides        = $module.find(selector.sides),
         $side         = $module.find(selector.side),
 
         // private variables
+        nextSelector = false,
         $activeSide,
         $nextSide,
 
@@ -8263,46 +8511,27 @@ $.fn.shape = function(parameters) {
             module.reset();
             module.set.active();
           };
-          if(settings.useCSS) {
-            if(module.get.transitionEvent()) {
-              module.verbose('Starting CSS animation');
-              $module
-                .addClass(className.animating)
-              ;
-              module.set.stageSize();
-              module.repaint();
-              $module
-                .addClass(className.css)
-              ;
-              $activeSide
-                .addClass(className.hidden)
-              ;
-              $sides
-                .css(propertyObject)
-                .one(module.get.transitionEvent(), callback)
-              ;
-            }
-            else {
-              callback();
-            }
-          }
-          else {
-            // not yet supported until .animate() is extended to allow RotateX/Y
-            module.verbose('Starting javascript animation');
+          $.proxy(settings.beforeChange, $nextSide[0])();
+          if(module.get.transitionEvent()) {
+            module.verbose('Starting CSS animation');
             $module
               .addClass(className.animating)
-              .removeClass(className.css)
             ;
-            module.set.stageSize();
             module.repaint();
+            $module
+              .addClass(className.animating)
+            ;
             $activeSide
-              .animate({
-                opacity: 0
-              }, settings.duration, settings.easing)
+              .addClass(className.hidden)
             ;
             $sides
-              .animate(propertyObject, settings.duration, settings.easing, callback)
+              .css(propertyObject)
+              .one(module.get.transitionEvent(), callback)
             ;
+            module.set.duration(settings.duration);
+          }
+          else {
+            callback();
           }
         },
 
@@ -8321,7 +8550,6 @@ $.fn.shape = function(parameters) {
         reset: function() {
           module.verbose('Animating states reset');
           $module
-            .removeClass(className.css)
             .removeClass(className.animating)
             .attr('style', '')
             .removeAttr('style')
@@ -8347,6 +8575,160 @@ $.fn.shape = function(parameters) {
           animating: function() {
             return $module.hasClass(className.animating);
           }
+        },
+
+        set: {
+
+          defaultSide: function() {
+            $activeSide = $module.find('.' + settings.className.active);
+            $nextSide   = ( $activeSide.next(selector.side).size() > 0 )
+              ? $activeSide.next(selector.side)
+              : $module.find(selector.side).first()
+            ;
+            nextSelector = false;
+            module.verbose('Active side set to', $activeSide);
+            module.verbose('Next side set to', $nextSide);
+          },
+
+          duration: function(duration) {
+            duration = duration || settings.duration;
+            duration = (typeof duration == 'number')
+              ? duration + 'ms'
+              : duration
+            ;
+            module.verbose('Setting animation duration', duration);
+            $sides.add($side)
+              .css({
+                '-webkit-transition-duration': duration,
+                '-moz-transition-duration': duration,
+                '-ms-transition-duration': duration,
+                '-o-transition-duration': duration,
+                'transition-duration': duration
+              })
+            ;
+          },
+
+          stageSize: function() {
+            var
+              $clone      = $module.clone().addClass(className.loading),
+              $activeSide = $clone.find('.' + settings.className.active),
+              $nextSide   = (nextSelector)
+                ? $clone.find(nextSelector)
+                : ( $activeSide.next(selector.side).size() > 0 )
+                  ? $activeSide.next(selector.side)
+                  : $clone.find(selector.side).first(),
+              newSize = {}
+            ;
+            $activeSide.removeClass(className.active);
+            $nextSide.addClass(className.active);
+            $clone.prependTo($body);
+            newSize = {
+              width  : $nextSide.outerWidth(),
+              height : $nextSide.outerHeight()
+            };
+            $clone.remove();
+            $module
+              .css(newSize)
+            ;
+            module.verbose('Resizing stage to fit new content', newSize);
+          },
+
+          nextSide: function(selector) {
+            nextSelector = selector;
+            $nextSide = $module.find(selector);
+            if($nextSide.size() === 0) {
+              module.error(error.side);
+            }
+            module.verbose('Next side manually set to', $nextSide);
+          },
+
+          active: function() {
+            module.verbose('Setting new side to active', $nextSide);
+            $side
+              .removeClass(className.active)
+            ;
+            $nextSide
+              .addClass(className.active)
+            ;
+            $.proxy(settings.onChange, $nextSide[0])();
+            module.set.defaultSide();
+          }
+        },
+
+        flip: {
+
+          up: function() {
+            module.debug('Flipping up', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.above();
+              module.animate( module.get.transform.up() );
+            }
+            else {
+              module.queue('flip up');
+            }
+          },
+
+          down: function() {
+            module.debug('Flipping down', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.below();
+              module.animate( module.get.transform.down() );
+            }
+            else {
+              module.queue('flip down');
+            }
+          },
+
+          left: function() {
+            module.debug('Flipping left', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.left();
+              module.animate(module.get.transform.left() );
+            }
+            else {
+              module.queue('flip left');
+            }
+          },
+
+          right: function() {
+            module.debug('Flipping right', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.right();
+              module.animate(module.get.transform.right() );
+            }
+            else {
+              module.queue('flip right');
+            }
+          },
+
+          over: function() {
+            module.debug('Flipping over', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.behind();
+              module.animate(module.get.transform.over() );
+            }
+            else {
+              module.queue('flip over');
+            }
+          },
+
+          back: function() {
+            module.debug('Flipping back', $nextSide);
+            if( !module.is.animating() ) {
+              module.set.stageSize();
+              module.stage.behind();
+              module.animate(module.get.transform.back() );
+            }
+            else {
+              module.queue('flip back');
+            }
+          }
+
         },
 
         get: {
@@ -8446,125 +8828,6 @@ $.fn.shape = function(parameters) {
               ? $activeSide.next(selector.side)
               : $module.find(selector.side).first()
             ;
-          }
-
-        },
-
-        set: {
-
-          defaultSide: function() {
-            $activeSide = $module.find('.' + settings.className.active);
-            $nextSide   = ( $activeSide.next(selector.side).size() > 0 )
-              ? $activeSide.next(selector.side)
-              : $module.find(selector.side).first()
-            ;
-            module.verbose('Active side set to', $activeSide);
-            module.verbose('Next side set to', $nextSide);
-          },
-
-          stageSize: function() {
-            var
-              stage = {
-                width  : $nextSide.outerWidth(),
-                height : $nextSide.outerHeight()
-              }
-            ;
-            module.verbose('Resizing stage to fit new content', stage);
-            $module
-              .css({
-                width  : stage.width,
-                height : stage.height
-              })
-            ;
-          },
-
-          nextSide: function(selector) {
-            $nextSide = $module.find(selector);
-            if($nextSide.size() === 0) {
-              module.error(error.side);
-            }
-            module.verbose('Next side manually set to', $nextSide);
-          },
-
-          active: function() {
-            module.verbose('Setting new side to active', $nextSide);
-            $side
-              .removeClass(className.active)
-            ;
-            $nextSide
-              .addClass(className.active)
-            ;
-            $.proxy(settings.onChange, $nextSide)();
-            module.set.defaultSide();
-          }
-        },
-
-        flip: {
-
-          up: function() {
-            module.debug('Flipping up', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.above();
-              module.animate( module.get.transform.up() );
-            }
-            else {
-              module.queue('flip up');
-            }
-          },
-
-          down: function() {
-            module.debug('Flipping down', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.below();
-              module.animate( module.get.transform.down() );
-            }
-            else {
-              module.queue('flip down');
-            }
-          },
-
-          left: function() {
-            module.debug('Flipping left', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.left();
-              module.animate(module.get.transform.left() );
-            }
-            else {
-              module.queue('flip left');
-            }
-          },
-
-          right: function() {
-            module.debug('Flipping right', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.right();
-              module.animate(module.get.transform.right() );
-            }
-            else {
-              module.queue('flip right');
-            }
-          },
-
-          over: function() {
-            module.debug('Flipping over', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.behind();
-              module.animate(module.get.transform.over() );
-            }
-            else {
-              module.queue('flip over');
-            }
-          },
-
-          back: function() {
-            module.debug('Flipping back', $nextSide);
-            if( !module.is.animating() ) {
-              module.stage.behind();
-              module.animate(module.get.transform.back() );
-            }
-            else {
-              module.queue('flip back');
-            }
           }
 
         },
@@ -8702,26 +8965,22 @@ $.fn.shape = function(parameters) {
           }
         },
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -8849,14 +9108,14 @@ $.fn.shape = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -8877,8 +9136,8 @@ $.fn.shape = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -8904,12 +9163,8 @@ $.fn.shape.settings = {
   beforeChange : function() {},
   onChange     : function() {},
 
-  // use css animation (currently only true is supported)
-  useCSS     : true,
-
-  // animation duration (useful only with future js animations)
-  duration   : 1000,
-  easing     : 'easeInOutQuad',
+  // animation duration
+  duration   : 700,
 
   // possible errors
   error: {
@@ -8919,9 +9174,9 @@ $.fn.shape.settings = {
 
   // classnames used
   className   : {
-    css       : 'css',
     animating : 'animating',
     hidden    : 'hidden',
+    loading   : 'loading',
     active    : 'active'
   },
 
@@ -8950,41 +9205,41 @@ $.fn.shape.settings = {
 
 $.fn.sidebar = function(parameters) {
   var
-    $allModules     = $(this),
+    $allModules    = $(this),
+    $body          = $('body'),
+    $head          = $('head'),
 
-    settings        = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.sidebar.settings, parameters)
-      : $.fn.sidebar.settings,
+    moduleSelector = $allModules.selector || '',
 
-    selector        = settings.selector,
-    className       = settings.className,
-    namespace       = settings.namespace,
-    error           = settings.error,
+    time           = new Date().getTime(),
+    performance    = [],
 
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = 'module-' + namespace,
-    moduleSelector  = $allModules.selector || '',
-
-    time            = new Date().getTime(),
-    performance     = [],
-
-    query           = arguments[0],
-    methodInvoked   = (typeof query == 'string'),
-    queryArguments  = [].slice.call(arguments, 1),
-    invokedResponse
+    query          = arguments[0],
+    methodInvoked  = (typeof query == 'string'),
+    queryArguments = [].slice.call(arguments, 1),
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
-        $module  = $(this),
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.sidebar.settings, parameters)
+          : $.extend({}, $.fn.sidebar.settings),
 
-        $body    = $('body'),
-        $head    = $('head'),
-        $style   = $('style[title=' + namespace + ']'),
+        selector        = settings.selector,
+        className       = settings.className,
+        namespace       = settings.namespace,
+        error           = settings.error,
 
-        element  = this,
-        instance = $module.data(moduleNamespace),
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+
+        $module         = $(this),
+        $style          = $('style[title=' + namespace + ']'),
+
+        element         = this,
+        instance        = $module.data(moduleNamespace),
         module
       ;
 
@@ -9036,28 +9291,52 @@ $.fn.sidebar = function(parameters) {
           }
         },
 
-
-        show: function() {
-          module.debug('Showing sidebar');
+        show: function(callback) {
+          callback = $.isFunction(callback)
+            ? callback
+            : function(){}
+          ;
+          module.debug('Showing sidebar', callback);
           if(module.is.closed()) {
             if(!settings.overlay) {
+              if(settings.exclusive) {
+                module.hideAll();
+              }
               module.pushPage();
             }
             module.set.active();
+            callback();
+            $.proxy(settings.onChange, element)();
+            $.proxy(settings.onShow, element)();
           }
           else {
             module.debug('Sidebar is already visible');
           }
         },
 
-        hide: function() {
+        hide: function(callback) {
+          callback = $.isFunction(callback)
+            ? callback
+            : function(){}
+          ;
+          module.debug('Hiding sidebar', callback);
           if(module.is.open()) {
             if(!settings.overlay) {
               module.pullPage();
               module.remove.pushed();
             }
             module.remove.active();
+            callback();
+            $.proxy(settings.onChange, element)();
+            $.proxy(settings.onHide, element)();
           }
+        },
+
+        hideAll: function() {
+          $(selector.sidebar)
+            .filter(':visible')
+              .sidebar('hide')
+          ;
         },
 
         toggle: function() {
@@ -9209,26 +9488,22 @@ $.fn.sidebar = function(parameters) {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -9356,14 +9631,14 @@ $.fn.sidebar = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -9383,8 +9658,8 @@ $.fn.sidebar = function(parameters) {
     })
   ;
 
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -9399,10 +9674,9 @@ $.fn.sidebar.settings = {
   performance : true,
 
   useCSS      : true,
+  exclusive   : true,
   overlay     : false,
   duration    : 300,
-
-  side        : 'left',
 
   onChange     : function(){},
   onShow       : function(){},
@@ -9415,6 +9689,10 @@ $.fn.sidebar.settings = {
     left   : 'left',
     right  : 'right',
     bottom : 'bottom'
+  },
+
+  selector: {
+    sidebar: '.ui.sidebar'
   },
 
   error   : {
@@ -9465,7 +9743,7 @@ $.fn.sidebar.settings = {
       error           = settings.error,
 
       eventNamespace  = '.' + settings.namespace,
-      moduleNamespace = settings.namespace + '-module',
+      moduleNamespace = 'module-' + settings.namespace,
 
       instance        = $module.data(moduleNamespace),
 
@@ -9474,7 +9752,7 @@ $.fn.sidebar.settings = {
       queryArguments  = [].slice.call(arguments, 1),
 
       module,
-      invokedResponse
+      returnedValue
     ;
 
     module = {
@@ -9492,18 +9770,26 @@ $.fn.sidebar.settings = {
 
         // attach history events
         if(settings.history) {
+          module.debug('Initializing page state');
           if( $.address === undefined ) {
             module.error(error.state);
             return false;
           }
-          else if(settings.path === false) {
-            module.error(error.path);
-            return false;
-          }
           else {
-            module.verbose('Address library found adding state change event');
+            if(settings.historyType == 'html5') {
+              module.debug('Using HTML5 to manage state');
+              if(settings.path !== false) {
+                $.address
+                  .history(true)
+                  .state(settings.path)
+                ;
+              }
+              else {
+                module.error(error.path);
+                return false;
+              }
+            }
             $.address
-              .state(settings.path)
               .unbind('change')
               .bind('change', module.event.history.change)
             ;
@@ -9530,21 +9816,23 @@ $.fn.sidebar.settings = {
       destroy: function() {
         module.debug('Destroying tabs', $module);
         $module
+          .removeData(moduleNamespace)
           .off(eventNamespace)
         ;
       },
 
       event: {
         click: function(event) {
-          module.debug('Navigation clicked');
           var
             tabPath = $(this).data(metadata.tab)
           ;
           if(tabPath !== undefined) {
             if(settings.history) {
+              module.verbose('Updating page state', event);
               $.address.value(tabPath);
             }
             else {
+              module.verbose('Changing tab without state management', event);
               module.changeTab(tabPath);
             }
             event.preventDefault();
@@ -9595,6 +9883,12 @@ $.fn.sidebar.settings = {
           cacheKey = cacheKey || activeTabPath;
           module.debug('Removing cached content for', cacheKey);
           delete cache[cacheKey];
+        }
+      },
+
+      set: {
+        state: function(url) {
+          $.address.value(url);
         }
       },
 
@@ -9660,6 +9954,11 @@ $.fn.sidebar.settings = {
             else {
               module.debug('Opened local tab', currentPath);
               module.activate.all(currentPath);
+              if( !module.cache.read(currentPath) ) {
+                module.cache.add(currentPath, true);
+                module.debug('First time tab loaded calling tab init');
+                $.proxy(settings.onTabInit, $tab)(currentPath, parameterArray, historyEvent);
+              }
               $.proxy(settings.onTabLoad, $tab)(currentPath, parameterArray, historyEvent);
             }
           }
@@ -9869,26 +10168,22 @@ $.fn.sidebar.settings = {
       },
 
       setting: function(name, value) {
-        if(value !== undefined) {
-          if( $.isPlainObject(name) ) {
-            $.extend(true, settings, name);
-          }
-          else {
-            settings[name] = value;
-          }
+        if( $.isPlainObject(name) ) {
+          $.extend(true, settings, name);
+        }
+        else if(value !== undefined) {
+          settings[name] = value;
         }
         else {
           return settings[name];
         }
       },
       internal: function(name, value) {
-        if(value !== undefined) {
-          if( $.isPlainObject(name) ) {
-            $.extend(true, module, name);
-          }
-          else {
-            module[name] = value;
-          }
+        if( $.isPlainObject(name) ) {
+          $.extend(true, module, name);
+        }
+        else if(value !== undefined) {
+          module[name] = value;
         }
         else {
           return module[name];
@@ -10013,14 +10308,14 @@ $.fn.sidebar.settings = {
         else if(found !== undefined) {
           response = found;
         }
-        if($.isArray(invokedResponse)) {
-          invokedResponse.push(response);
+        if($.isArray(returnedValue)) {
+          returnedValue.push(response);
         }
-        else if(typeof invokedResponse == 'string') {
-          invokedResponse = [invokedResponse, response];
+        else if(returnedValue !== undefined) {
+          returnedValue = [returnedValue, response];
         }
         else if(response !== undefined) {
-          invokedResponse = response;
+          returnedValue = response;
         }
         return found;
       }
@@ -10039,8 +10334,8 @@ $.fn.sidebar.settings = {
       module.initialize();
     }
 
-    return (invokedResponse !== undefined)
-      ? invokedResponse
+    return (returnedValue !== undefined)
+      ? returnedValue
       : this
     ;
 
@@ -10070,7 +10365,8 @@ $.fn.sidebar.settings = {
 
     // uses pjax style endpoints fetching content from same url with remote-content headers
     auto            : false,
-    history         : false,
+    history         : true,
+    historyType     : 'hash',
     path            : false,
 
     context         : 'body',
@@ -10147,7 +10443,7 @@ $.fn.transition = function() {
       || window.msRequestAnimationFrame
       || function(callback) { setTimeout(callback, 0); },
 
-    invokedResponse
+    returnedValue
   ;
   $allModules
     .each(function() {
@@ -10263,10 +10559,12 @@ $.fn.transition = function() {
             if($module.hasClass(className.outward)) {
               module.restore.conditions();
               module.hide();
+              $.proxy(settings.onHide, this)();
             }
             else if($module.hasClass(className.inward)) {
               module.restore.conditions();
               module.show();
+              $.proxy(settings.onShow, this)();
             }
             else {
               module.restore.conditions();
@@ -10431,7 +10729,7 @@ $.fn.transition = function() {
                 animation : animation
               });
             }
-            return $.fn.transition.settings;
+            return $.extend({}, $.fn.transition.settings);
           },
 
           animationName: function() {
@@ -10553,26 +10851,22 @@ $.fn.transition = function() {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -10699,14 +10993,14 @@ $.fn.transition = function() {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found || false;
         }
@@ -10714,8 +11008,8 @@ $.fn.transition = function() {
       module.initialize();
     })
   ;
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
@@ -10723,40 +11017,42 @@ $.fn.transition = function() {
 $.fn.transition.settings = {
 
   // module info
-  name   : 'Transition',
+  name        : 'Transition',
 
   // debug content outputted to console
-  debug        : true,
+  debug       : false,
 
   // verbose debug output
-  verbose      : true,
+  verbose     : true,
 
   // performance data output
-  performance  : true,
+  performance : true,
 
   // event namespace
-  namespace    : 'transition',
+  namespace   : 'transition',
 
   // animation complete event
-  complete     : function() {},
+  complete    : function() {},
+  onShow      : function() {},
+  onHide      : function() {},
 
   // animation duration
-  animation    : 'fade',
-  duration     : '700ms',
+  animation   : 'fade',
+  duration    : '700ms',
 
-  // queue up animations
-  queue        : true,
+  // new animations will occur after previous ones
+  queue       : true,
 
-  className    : {
-    transition : 'ui transition',
+  className   : {
     animating  : 'animating',
-    looping    : 'looping',
-    loading    : 'loading',
     disabled   : 'disabled',
     hidden     : 'hidden',
-    visible    : 'visible',
     inward     : 'in',
-    outward    : 'out'
+    loading    : 'loading',
+    looping    : 'looping',
+    outward    : 'out',
+    transition : 'ui transition',
+    visible    : 'visible'
   },
 
   // possible errors
@@ -10787,10 +11083,6 @@ $.fn.video = function(parameters) {
   var
     $allModules     = $(this),
 
-    settings        = ( $.isPlainObject(parameters) )
-      ? $.extend(true, {}, $.fn.video.settings, parameters)
-      : $.fn.video.settings,
-
     moduleSelector  = $allModules.selector || '',
 
     time            = new Date().getTime(),
@@ -10800,21 +11092,25 @@ $.fn.video = function(parameters) {
     methodInvoked   = (typeof query == 'string'),
     queryArguments  = [].slice.call(arguments, 1),
 
-    selector        = settings.selector,
-    className       = settings.className,
-    error           = settings.error,
-    metadata        = settings.metadata,
-    namespace       = settings.namespace,
-
-    eventNamespace  = '.' + namespace,
-    moduleNamespace = namespace + '-module',
-
-    invokedResponse
+    returnedValue
   ;
 
   $allModules
     .each(function() {
       var
+        settings        = ( $.isPlainObject(parameters) )
+          ? $.extend(true, {}, $.fn.video.settings, parameters)
+          : $.extend({}, $.fn.video.settings),
+
+        selector        = settings.selector,
+        className       = settings.className,
+        error           = settings.error,
+        metadata        = settings.metadata,
+        namespace       = settings.namespace,
+
+        eventNamespace  = '.' + namespace,
+        moduleNamespace = 'module-' + namespace,
+
         $module         = $(this),
         $placeholder    = $module.find(selector.placeholder),
         $playButton     = $module.find(selector.playButton),
@@ -10850,6 +11146,12 @@ $.fn.video = function(parameters) {
           module.verbose('Destroying previous instance of video');
           $module
             .removeData(moduleNamespace)
+            .off(eventNamespace)
+          ;
+          $placeholder
+            .off(eventNamespace)
+          ;
+          $playButton
             .off(eventNamespace)
           ;
         },
@@ -10997,26 +11299,22 @@ $.fn.video = function(parameters) {
         },
 
         setting: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, settings, name);
-            }
-            else {
-              settings[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, settings, name);
+          }
+          else if(value !== undefined) {
+            settings[name] = value;
           }
           else {
             return settings[name];
           }
         },
         internal: function(name, value) {
-          if(value !== undefined) {
-            if( $.isPlainObject(name) ) {
-              $.extend(true, module, name);
-            }
-            else {
-              module[name] = value;
-            }
+          if( $.isPlainObject(name) ) {
+            $.extend(true, module, name);
+          }
+          else if(value !== undefined) {
+            module[name] = value;
           }
           else {
             return module[name];
@@ -11144,14 +11442,14 @@ $.fn.video = function(parameters) {
           else if(found !== undefined) {
             response = found;
           }
-          if($.isArray(invokedResponse)) {
-            invokedResponse.push(response);
+          if($.isArray(returnedValue)) {
+            returnedValue.push(response);
           }
-          else if(typeof invokedResponse == 'string') {
-            invokedResponse = [invokedResponse, response];
+          else if(returnedValue !== undefined) {
+            returnedValue = [returnedValue, response];
           }
           else if(response !== undefined) {
-            invokedResponse = response;
+            returnedValue = response;
           }
           return found;
         }
@@ -11171,8 +11469,8 @@ $.fn.video = function(parameters) {
       }
     })
   ;
-  return (invokedResponse !== undefined)
-    ? invokedResponse
+  return (returnedValue !== undefined)
+    ? returnedValue
     : this
   ;
 };
