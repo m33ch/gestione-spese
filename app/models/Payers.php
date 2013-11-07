@@ -9,7 +9,7 @@ class Payers extends Eloquent {
 	public static $rules = array();
 
 	public function outgoings() {
-		return $this->belongsTo('Outgoings');
+		return $this->belongsToMany('Outgoings','custom_pivot');
 	}
 	public function user() {
 		return $this->belongsTo('Users');

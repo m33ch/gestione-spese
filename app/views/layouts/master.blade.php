@@ -32,7 +32,7 @@
     <a class="item <?php echo $currentMenu == 'user' ? 'active' : null ?>" href="{{ url('user') }}">
         <i class="users icon"></i> Utenti
     </a>
-    <a class="item <?php echo $currentMenu == 'outgoings' ? 'active' : null ?>" href="{{ url('outgoings') }}">
+    <a class="item <?php echo $currentMenu == 'outgoing' ? 'active' : null ?>" href="{{ url('outgoing') }}">
         <i class="browser icon"></i> Spese
     </a>
     <div class="ui right menu">

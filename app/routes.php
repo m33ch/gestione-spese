@@ -33,13 +33,13 @@ Route::group(array('before' => 'auth'), function()
 	});
 
 	// Routes for OutgoingsController
-	Route::group(array('prefix' => 'outgoings'), function()
+	Route::group(array('prefix' => 'outgoing'), function()
 	{
 
-	    Route::get('/', 'OutgoingsController@index');
-		Route::get('create', 'OutgoingsController@create');
-		Route::post('create', 'OutgoingsController@store');
-		Route::get('edit/{id}', 'OutgoingsController@edit')->where('id','[0-9]+');
+	    Route::get('/', 'OutgoingController@index');
+		Route::get('create', 'OutgoingController@create');
+		Route::post('create', 'OutgoingController@store');
+		Route::get('edit/{id}', 'OutgoingController@edit')->where('id','[0-9]+');
 
 	});
 
