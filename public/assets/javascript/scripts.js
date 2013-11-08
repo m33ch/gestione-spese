@@ -7,6 +7,19 @@ $(function(){
   		$(this).parent().transition()
 	});
 
+	$('.ui.checkbox')
+	  .on('change', function() {
+	    $(this)
+	      .parent()
+	      .next()
+	      .children()
+	      .transition('scale')
+	      .children()
+	      .focus()
+	    ;
+	  })
+	;
+
 	if ($('.datepicker').length > 0) {
 		$('.datepicker').pickadate({
 		    // Escape any “rule” characters with an exclamation mark (!).

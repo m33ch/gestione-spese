@@ -72,14 +72,10 @@ class OutgoingController extends BaseController {
             $outgoing = new Outgoings($userdata);
 
 			$payers = Payers::find($userdata['payers']);
-				
-			$outgoing->payers()->attach($userdata['payers']);
 
-			//$outgoing->payers()->associate($payers);
-
-			$outgoing->save();
-
-			//$outgoing = $payers->outgoings()->save($outgoing);
+			foreach ($payers as $payer) {
+				$payer->user()->attach($userdata['payers']);
+			}
 
             return Redirect::to('/')->with('success', 'Spesa create');
         }

@@ -16,6 +16,6 @@ class Outgoings extends Eloquent {
 		return $this->belongsTo('User');
 	}
 	public function payers() {
-		return $this->hasMany('Payers');
+		return $this->hasMany('payers');
 	}
 }

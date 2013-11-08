@@ -36,24 +36,31 @@
 			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ Input::old('amount') }}" >
 			    <?php echo $errors->first('amount') ? '<div class="ui red pointing above label">'.$errors->first('amount').'</div>' : null;  ?>
 			</div>
-			<div class="grouped inline fields">
-				<div class="ui <?php echo $errors->first('payers') ? 'red' : null;  ?> pointing below label">Seleziona i contribuenti</div>
-				@foreach ($users as $user)	
-				    <div class="field <?php echo $errors->first('payers') ? 'error' : null;  ?>">
-				      <div class="ui checkbox">
+			<div class="ui <?php echo $errors->first('payers') ? 'red' : null;  ?> pointing below label">Seleziona i contribuenti</div>
+			<div class="grouped fields">
+			@foreach ($users as $user)	
+				<div class="field <?php echo $errors->first('payers') ? 'error' : null;  ?>">
+				    <div class="ui checkbox">
 				      	<?php 
 				      		$checked = '';
+				      		$visibility = 'hidden';
 				      		if (Input::old('payers')) {
 				      			if (in_array($user->id, Input::old('payers'))) {
 				      				$checked = 'checked = "checked" ';
+				      				$visibility = 'visible';
 				      			}
 				      		}
 				      	?>
 				        <input name="payers[]" value="{{$user->id}}" id="user_{{$user->id}}" type="checkbox" {{$checked}}>
 				        <label for="user_{{$user->id}}">{{$user->name}}</label>
-				      </div>
 				    </div>
-				@endforeach
+				</div>
+				<div class="field">
+				  	<div class="ui input transition {{ $visibility }} ">
+    			  		<input placeholder="Contributo di {{$user->name}}" type="text" name="contribution[]">
+    				</div>
+    			</div>
+			@endforeach
 			</div>
 		  <button type="submit" class="ui blue submit button">Crea</button>
 		</div>
