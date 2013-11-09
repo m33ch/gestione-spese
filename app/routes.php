@@ -39,6 +39,7 @@ Route::group(array('before' => 'auth'), function()
 	    Route::get('/', 'OutgoingController@index');
 		Route::get('create', 'OutgoingController@create');
 		Route::post('create', 'OutgoingController@store');
+		Route::get('show/{id}', 'OutgoingController@show')->where('id','[0-9]+');
 		Route::get('edit/{id}', 'OutgoingController@edit')->where('id','[0-9]+');
 
 	});

@@ -15,7 +15,7 @@ class OutgoingController extends BaseController {
 	 */
 	public function index()
 	{
-        $outgoings = Outgoings::with('user')->get();
+        $outgoings = Outgoings::with('user')->paginate(10);
         return View::make('outgoing.index')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
@@ -77,15 +77,15 @@ class OutgoingController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-            $outgoing = new Outgoings($outgoingData);
+            $outgoing = Outgoings::create($outgoingData);
 
-			$payers = Payers::find($payersData['payers']);
+			$users = User::find($payersData['payers']);
 
-			foreach ($payers as $payer) {
-				$payer->user()->attach($payersData['payers'],$payersData['contributions']);
+			foreach ($users as $user) { 
+				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
 			}
 
-            return Redirect::to('/')->with('success', 'Spesa create');
+            return Redirect::to('/')->with('success', 'Spesa creata');
         }
 
         // Something went wrong.
@@ -99,8 +99,13 @@ class OutgoingController extends BaseController {
 	 * @return Response
 	 */
 	public function show($id)
-	{
-        return View::make('outgoing.show');
+	{	
+		$outgoing = Outgoings::find($id);
+
+        return View::make('outgoing.show')
+        			->with('currentUser',$this->currentUser)
+        			->with('currentMenu',$this->currentMenu)
+        			->with('outgoing',$outgoing);
 	}
 
 	/**

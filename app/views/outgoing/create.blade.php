@@ -58,7 +58,7 @@
 				</div>
 				<div class="field">
 				  	<div class="ui input transition {{ $visibility }} ">
-    			  		<input placeholder="Contributo di {{$user->name}}" type="text" value="{{ Input::old('contributions.'.$i) }}" name="contributions[]">
+    			  		<input placeholder="Contributo di {{$user->name}}" type="text" value="{{ Input::old('contributions.'.$i) }}" name="contributions[{{$user->id}}]">
     				</div>
     			</div>
     			<?php $i++; ?>

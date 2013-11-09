@@ -5,7 +5,7 @@
 		<h2 class="ui header">
 		  	Lista Spese
 		</h2>
-		<table class="ui sortable table segment">
+		<table class="ui padded table celled">
 			<thead>
 			    <tr>
 			    	<th class="one wide">Id</th>
@@ -29,12 +29,13 @@
 		    <tfoot>
 			    <tr>
 			    	<th colspan="5">
-
 			      		<a href="outgoing/create" class="ui blue labeled icon button"><i class="user icon"></i> Aggiungi spesa</a>
 			    	</th>
 			    </tr>
 		    </tfoot>
 		</table>
+		<div class="ui divider"></div>
+		<?php echo $outgoings->links(); ?>
 	</div>
 
 @stop
