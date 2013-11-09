@@ -38,7 +38,8 @@
 			</div>
 			<div class="ui <?php echo $errors->first('payers') ? 'red' : null;  ?> pointing below label">Seleziona i contribuenti</div>
 			<div class="grouped fields">
-			@foreach ($users as $user)	
+			<?php $i = 0; ?>
+			@foreach ($users as $user)
 				<div class="field <?php echo $errors->first('payers') ? 'error' : null;  ?>">
 				    <div class="ui checkbox">
 				      	<?php 
@@ -57,10 +58,11 @@
 				</div>
 				<div class="field">
 				  	<div class="ui input transition {{ $visibility }} ">
-    			  		<input placeholder="Contributo di {{$user->name}}" type="text" name="contribution[]">
+    			  		<input placeholder="Contributo di {{$user->name}}" type="text" value="{{ Input::old('contributions.'.$i) }}" name="contributions[]">
     				</div>
     			</div>
-			@endforeach
+    			<?php $i++; ?>
+    		@endforeach
 			</div>
 		  <button type="submit" class="ui blue submit button">Crea</button>
 		</div>

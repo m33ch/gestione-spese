@@ -46,35 +46,43 @@ class OutgoingController extends BaseController {
 	{
 		// Get all the inputs
         // id is used for login, username is used for validation to return correct error-strings
-        $userdata = array(
+        $outgoingData = array(
                 'title' 		=> Input::get('title'),
                 'description' 	=> Input::get('description'),
                 'date' 			=> Input::get('date_submit'),
                 'amount' 		=> Input::get('amount'),
-                'payers' 		=> Input::get('payers'),
-                'user_id' 		=> $this->currentUser->id,
+                'user_id' 		=> $this->currentUser->id
         );
+
+        $payersData = array(
+        		'payers' 		=> Input::get('payers'),
+                'contributions'	=> Input::get('contributions')
+        );
+
         // Declare the rules for the form validation.
         $rules = array(
            'title'  		=> 'required',
            'description'  	=> 'required',
            'date'  			=> 'required',
            'amount'  		=> 'required',
-           'payers'  		=> 'required'
+           'payers'  		=> 'required',
+           'contributions'	=> 'required',
         );
 
+        $data = array_merge($outgoingData, $payersData);
+
         // Validate the inputs.
-        $validator = Validator::make($userdata, $rules);
+        $validator = Validator::make($data, $rules);
 
         // Check if the form validates with success.
         if ($validator->passes())
         {
-            $outgoing = new Outgoings($userdata);
+            $outgoing = new Outgoings($outgoingData);
 
-			$payers = Payers::find($userdata['payers']);
+			$payers = Payers::find($payersData['payers']);
 
 			foreach ($payers as $payer) {
-				$payer->user()->attach($userdata['payers']);
+				$payer->user()->attach($payersData['payers'],$payersData['contributions']);
 			}
 
             return Redirect::to('/')->with('success', 'Spesa create');
