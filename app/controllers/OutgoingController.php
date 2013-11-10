@@ -116,7 +116,15 @@ class OutgoingController extends BaseController {
 	 */
 	public function edit($id)
 	{
-        return View::make('outgoing.edit');
+		$outgoing = Outgoings::find($id);
+
+		$users = User::All();
+
+        return View::make('outgoing.edit')
+        			->with('currentUser',$this->currentUser)
+        			->with('users',$users)
+        			->with('currentMenu',$this->currentMenu)
+        			->with('outgoing',$outgoing);
 	}
 
 	/**
@@ -128,6 +136,7 @@ class OutgoingController extends BaseController {
 	public function update($id)
 	{
 		//
+		echo 'DA FARE UPDATE!';
 	}
 
 	/**

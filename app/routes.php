@@ -41,6 +41,7 @@ Route::group(array('before' => 'auth'), function()
 		Route::post('create', 'OutgoingController@store');
 		Route::get('show/{id}', 'OutgoingController@show')->where('id','[0-9]+');
 		Route::get('edit/{id}', 'OutgoingController@edit')->where('id','[0-9]+');
+		Route::post('edit/{id}', 'OutgoingController@update')->where('id','[0-9]+');
 
 	});
 
