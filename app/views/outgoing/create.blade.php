@@ -13,7 +13,7 @@
 		<h2 class="ui header">
 		  	Nuova Spesa
 		</h2>
-		{{ Form::open(array('url' => 'outgoing/create')) }}
+		{{ Form::open(array('action' => array('OutgoingController@store'), 'method' => 'post', )) }}
 		<div class="ui form segment">
 			<div class="field <?php echo $errors->first('title') ? 'error' : null;  ?>">
 			    <label>Titolo</label>

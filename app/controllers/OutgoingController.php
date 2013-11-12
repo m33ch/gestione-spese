@@ -3,10 +3,11 @@
 class OutgoingController extends BaseController {
 		
 
-	public function __construct() 
+	public function __construct(Outgoings $outgoing) 
 	{
 		parent::__construct();
 		$this->currentMenu = 'outgoing';
+		$this->outgoing = $outgoing;
 	}
 	/**
 	 * Display a listing of the resource.
@@ -15,7 +16,7 @@ class OutgoingController extends BaseController {
 	 */
 	public function index()
 	{
-        $outgoings = Outgoings::with('user')->paginate(10);
+        $outgoings = $this->outgoing->with('user')->paginate(5);
         return View::make('outgoing.index')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
@@ -66,7 +67,7 @@ class OutgoingController extends BaseController {
            'date'  			=> 'required',
            'amount'  		=> 'required',
            'payers'  		=> 'required',
-           'contributions'	=> 'required',
+           'contributions'	=> 'required'
         );
 
         $data = array_merge($outgoingData, $payersData);
@@ -77,7 +78,7 @@ class OutgoingController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-            $outgoing = Outgoings::create($outgoingData);
+            $outgoing = $this->outgoing->create($outgoingData);
 
 			$users = User::find($payersData['payers']);
 
@@ -100,7 +101,7 @@ class OutgoingController extends BaseController {
 	 */
 	public function show($id)
 	{	
-		$outgoing = Outgoings::find($id);
+		$outgoing = $this->outgoing->find($id);
 
         return View::make('outgoing.show')
         			->with('currentUser',$this->currentUser)
@@ -116,13 +117,11 @@ class OutgoingController extends BaseController {
 	 */
 	public function edit($id)
 	{
-		$outgoing = Outgoings::find($id);
-
-		$users = User::All();
+		$outgoing = $this->outgoing->find($id);
 
         return View::make('outgoing.edit')
         			->with('currentUser',$this->currentUser)
-        			->with('users',$users)
+        			//->with('users',$users)
         			->with('currentMenu',$this->currentMenu)
         			->with('outgoing',$outgoing);
 	}
@@ -136,7 +135,57 @@ class OutgoingController extends BaseController {
 	public function update($id)
 	{
 		//
-		echo 'DA FARE UPDATE!';
+		$outgoingData = array(
+                'title' 		=> Input::get('title'),
+                'description' 	=> Input::get('description'),
+                'date' 			=> Input::get('date_submit'),
+                'amount' 		=> Input::get('amount'),
+                'user_id' 		=> $this->currentUser->id
+        );
+
+        $payersData = array(
+        		'payers' 		=> Input::get('payers'),
+                'contributions'	=> Input::get('contributions')
+        );
+
+        // Declare the rules for the form validation.
+        $rules = array(
+           'title'  		=> 'required',
+           'description'  	=> 'required',
+           'date'  			=> 'required',
+           'amount'  		=> 'required',
+           'payers'  		=> 'required',
+           'contributions'	=> 'required'
+        );
+
+        $data = array_merge($outgoingData, $payersData);
+
+        // Validate the inputs.
+        $validator = Validator::make($data, $rules);
+
+        // Check if the form validates with success.
+        if ($validator->passes())
+        {
+            $outgoing = $this->outgoing->find($id);
+
+            $outgoing->title 		= $outgoingData['title'];
+            $outgoing->description 	= $outgoingData['description'];
+            $outgoing->date 		= $outgoingData['date'];
+            $outgoing->amount 		= $outgoingData['amount'];
+
+			$users = User::find($payersData['payers']);
+			foreach ($users as $user) {
+				$user->outgoings()->detach($outgoing->id);
+				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
+			}
+
+			$outgoing->save();
+
+            return Redirect::to('/')->with('success', 'Spesa aggiornata');
+        }
+
+        // Something went wrong.
+        return Redirect::to('outgoing/create')->withErrors($validator)->withInput(Input::all());
 	}
 
 	/**

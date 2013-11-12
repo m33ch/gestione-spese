@@ -13,7 +13,7 @@
 		<h2 class="ui header">
 		  	Modifica Spesa
 		</h2>
-		{{ Form::open(array('url' => 'outgoing/edit/'.$outgoing->id)) }}
+		{{ Form::open(array('action' => array('OutgoingController@update', $outgoing->id), 'method' => 'put', )) }}
 		<div class="ui form segment">
 			<div class="field <?php echo $errors->first('title') ? 'error' : null;  ?>">
 			    <label>Titolo</label>
