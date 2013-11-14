@@ -169,7 +169,10 @@ class OutgoingController extends BaseController {
 
 			$users = User::all();
 			foreach ($users as $user) {
-				$user->outgoings()->sync(array($outgoing->id => array('contribution' => $payersData['contributions'][$user->id])), false);
+				if (isset($payersData['contributions'][$user->id])) {
+					$contribution = $payersData['contributions'][$user->id];
+				}
+				$user->outgoings()->sync(array($outgoing->id => array('contribution' => $contribution)), false);
 			}
 
 			$outgoing->save();
