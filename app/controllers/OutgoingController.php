@@ -1,5 +1,5 @@
 <?php
-
+//5555
 class OutgoingController extends BaseController {
 		
 
@@ -54,9 +54,7 @@ class OutgoingController extends BaseController {
                 'amount' 		=> Input::get('amount'),
                 'user_id' 		=> $this->currentUser->id
         );
-
         $payersData = array(
-        		'payers' 		=> Input::get('payers'),
                 'contributions'	=> Input::get('contributions')
         );
 
@@ -66,7 +64,6 @@ class OutgoingController extends BaseController {
            'description'  	=> 'required',
            'date'  			=> 'required',
            'amount'  		=> 'required',
-           'payers'  		=> 'required',
            'contributions'	=> 'required'
         );
 
@@ -80,9 +77,9 @@ class OutgoingController extends BaseController {
         {
             $outgoing = $this->outgoing->create($outgoingData);
 
-			$users = User::find($payersData['payers']);
+			$users = User::all();
 
-			foreach ($users as $user) { 
+			foreach ($users as $user) {
 				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
 			}
 
@@ -102,7 +99,6 @@ class OutgoingController extends BaseController {
 	public function show($id)
 	{	
 		$outgoing = $this->outgoing->find($id);
-
         return View::make('outgoing.show')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
@@ -144,7 +140,6 @@ class OutgoingController extends BaseController {
         );
 
         $payersData = array(
-        		'payers' 		=> Input::get('payers'),
                 'contributions'	=> Input::get('contributions')
         );
 
@@ -154,7 +149,6 @@ class OutgoingController extends BaseController {
            'description'  	=> 'required',
            'date'  			=> 'required',
            'amount'  		=> 'required',
-           'payers'  		=> 'required',
            'contributions'	=> 'required'
         );
 
@@ -173,10 +167,9 @@ class OutgoingController extends BaseController {
             $outgoing->date 		= $outgoingData['date'];
             $outgoing->amount 		= $outgoingData['amount'];
 
-			$users = User::find($payersData['payers']);
+			$users = User::all();
 			foreach ($users as $user) {
-				$user->outgoings()->detach($outgoing->id);
-				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
+				$user->outgoings()->sync(array($outgoing->id => array('contribution' => $payersData['contributions'][$user->id])), false);
 			}
 
 			$outgoing->save();

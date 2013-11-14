@@ -20,6 +20,7 @@ class CreateOutgoingsTable extends Migration {
 			$table->string('description');
 			$table->date('date');
 			$table->decimal('amount',5,2);
+			$table->enum('status',array('open','closed'));
 			$table->timestamps();
 			$table->softDeletes();
 		});

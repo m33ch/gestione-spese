@@ -50,7 +50,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	}
 
 	public function outgoings() {
-		return $this->belongsToMany('Outgoings', 'payers');
+		return $this->belongsToMany('Outgoings', 'payers')
+					->withTimestamps();
 	}
 
 }

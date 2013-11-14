@@ -18,7 +18,6 @@ class Outgoings extends Eloquent {
 
 	public function payers() {
 		return $this->belongsToMany('User', 'payers')
-					->withPivot('contribution')
-					->withTimestamps();
+					->withPivot('contribution');
 	}
 }

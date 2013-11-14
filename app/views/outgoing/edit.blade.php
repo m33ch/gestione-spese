@@ -8,6 +8,7 @@
 {{ HTML::script('packages/pickdate/picker.date.js') }}
 {{ HTML::script('packages/pickdate/picker.time.js') }}
 {{ HTML::script('packages/pickdate/translations/it_IT.js') }}
+
 <div class="wide column"> 
 	<div class="ui segment">
 		<h2 class="ui header">
@@ -36,24 +37,13 @@
 			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ $outgoing->amount }}" >
 			    <?php echo $errors->first('amount') ? '<div class="ui red pointing above label">'.$errors->first('amount').'</div>' : null;  ?>
 			</div>
-			<div class="ui <?php echo $errors->first('payers') ? 'red' : null;  ?> pointing below label">Seleziona i contribuenti</div>
-			<div class="grouped fields">
-			<?php $i = 0; ?>
 			@foreach ($outgoing->payers as $payer)
-				<div class="field <?php echo $errors->first('payers') ? 'error' : null;  ?>">
-				    <div class="ui checkbox">
-				        <input name="payers[]" value="{{$payer->id}}" id="user_{{$payer->id}}" type="checkbox" checked>
-				        <label for="user_{{$payer->id}}">{{$payer->name}}</label>
-				    </div>
-				</div>
-				<div class="field">
-				  	<div class="ui input transition visible ">
-    			  		<input placeholder="Contributo di {{$payer->name}}" type="text" value="{{ $payer->pivot->contribution }}" name="contributions[{{$payer->id}}]">
-    				</div>
-    			</div>
-    			<?php $i++; ?>
-    		@endforeach
+			<div class="field {{ $errors->has('contributions') ? 'error' : null;  }} ">
+				<label>Contributo di {{ $payer->name }}</label>
+				<input placeholder="0.00" type="text" name="contributions[{{$payer->id}}]" value="{{ $payer->pivot->contribution }}" >
+				<?php echo $errors->first('contributions') ? '<div class="ui red pointing above label">'.$errors->first('contributions').'</div>' : null;  ?>
 			</div>
+    		@endforeach
 		  <button type="submit" class="ui blue submit button">Aggiorna</button>
 		</div>
 		{{ Form::close() }}
