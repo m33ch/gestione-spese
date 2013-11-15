@@ -5,7 +5,7 @@
 		<h2 class="ui header">
 		  	Lista Spese
 		</h2>
-		<table class="ui padded table celled">
+		<table class="ui table celled">
 			<thead>
 			    <tr>
 			    	<th class="one wide">Id</th>

@@ -1,5 +1,4 @@
 <!-- Stored in app/views/layouts/master.blade.php -->
-
 <!DOCTYPE html>
 <head>
   <!-- Standard Meta -->
@@ -12,12 +11,13 @@
  
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
   {{ HTML::style('assets/css/semantic.min.css') }}
+  {{ HTML::style('assets/css/style.css') }}
 
   <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.js"></script>
   {{ HTML::script('assets/javascript/semantic.min.js') }}
   {{ HTML::script('assets/javascript/scripts.js') }}
 </head>
-<body>
+<body class="grid">
   <!-- Success-Messages -->
   @if ($message = Session::get('success'))
         <div class="ui success message">
@@ -27,6 +27,7 @@
           </div>
       </div>
   @endif
+  
   @if ( Auth::check() )
   <div class="ui menu">
     <a class="item <?php echo $currentMenu == 'user' ? 'active' : null ?>" href="{{ url('user') }}">
@@ -47,7 +48,9 @@
     </div>
   </div>
   @endif
-  @yield('content')
+  <div class="main container">
+    @yield('content')
+  </div>
   
 </body>
 

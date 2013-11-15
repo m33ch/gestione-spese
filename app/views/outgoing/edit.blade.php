@@ -8,9 +8,7 @@
 {{ HTML::script('packages/pickdate/picker.date.js') }}
 {{ HTML::script('packages/pickdate/picker.time.js') }}
 {{ HTML::script('packages/pickdate/translations/it_IT.js') }}
-
-<div class="wide column"> 
-	<div class="ui segment">
+<div class="ui segment">
 		<h2 class="ui header">
 		  	Modifica Spesa
 		</h2>
@@ -47,7 +45,6 @@
 		  <button type="submit" class="ui blue submit button">Aggiorna</button>
 		</div>
 		{{ Form::close() }}
-	</div>
 </div>
 
 @stop
