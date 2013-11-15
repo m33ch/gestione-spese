@@ -1,9 +1,30 @@
 $(function(){
+
 	$('.ui.dropdown')
       .dropdown()
     ;
 
-	$('.close').click(function(){
+    $('.ui.button.delete').on('click', function(event) {
+    	
+    	event.preventDefault();
+
+    	var action = $(this).parent('form').attr('action'),
+    		data = {_method: 'delete' };
+
+    	$.ajax({
+		    url:  action,
+		    type: 'POST',
+		    data: data,
+		    success: function(result) {
+		        
+		    }
+		});
+
+    });	
+
+    $('.ui.button.delete').popup();
+
+   	$('.close').click(function(){
   		$(this).parent().transition()
 	});
 

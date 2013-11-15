@@ -174,11 +174,11 @@ class OutgoingController extends BaseController {
 
 			$outgoing->save();
 
-            return Redirect::to('/')->with('success', 'Spesa aggiornata');
+            return Redirect::to('/outgoing')->with('success', 'Spesa aggiornata');
         }
 
         // Something went wrong.
-        return Redirect::to('outgoing/create')->withErrors($validator)->withInput(Input::all());
+        return Redirect::to('outgoing/'.$id.'/edit')->withErrors($validator)->withInput(Input::all());
 	}
 
 	/**
@@ -189,7 +189,8 @@ class OutgoingController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		$outgoing = $this->outgoing->find($id);
+		$outgoing->delete();
 	}
 
 }

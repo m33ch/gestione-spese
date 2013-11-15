@@ -6,6 +6,8 @@ class Payers extends Eloquent {
 
 	protected $guarded = array();
 
+	protected $softDelete = true;
+	
 	public static $rules = array();
 
 	public function outgoings() {

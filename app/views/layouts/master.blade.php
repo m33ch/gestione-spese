@@ -17,7 +17,7 @@
   {{ HTML::script('assets/javascript/semantic.min.js') }}
   {{ HTML::script('assets/javascript/scripts.js') }}
 </head>
-<body class="grid">
+<body>
   <!-- Success-Messages -->
   @if ($message = Session::get('success'))
         <div class="ui success message">
