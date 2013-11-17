@@ -21,6 +21,7 @@ class CreatePayersTable extends Migration {
 			$table->foreign('outgoings_id')->references('id')->on('outgoings');
 			$table->decimal('contribution',5,2);
 			$table->timestamps();
+			$table->softDeletes();
 		});
 	}
 
