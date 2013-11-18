@@ -9,7 +9,7 @@
 			<thead>
 			    <tr>
 			    	<th class="one wide">Id</th>
-				    <th>Utente</th>
+				    <th>Creata da</th>
 				    <th>Titolo</th>
 				    <th>Data</th>
 				    <th>Totale</th>
@@ -21,7 +21,7 @@
 		    	@foreach ($outgoings as $outgoing)  
 			    <tr>
 			      	<td>{{ $outgoing->id }}</td>
-			      	<td>{{ $outgoing->user->name }}</td>
+			      	<td>{{ $outgoing->author->name }}</td>
 			      	<td>{{ $outgoing->title }}</td>
 			      	<td>{{ date("d/m/Y", strtotime($outgoing->date)) }}</td>
 			      	<td>{{ $outgoing->amount }}</td>

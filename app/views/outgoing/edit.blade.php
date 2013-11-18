@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
+
 {{ HTML::style('packages/pickdate/themes/default.css') }}
 {{ HTML::style('packages/pickdate/themes/default.date.css') }}
 {{ HTML::style('packages/pickdate/themes/default.time.css') }}

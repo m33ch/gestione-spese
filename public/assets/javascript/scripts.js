@@ -1,5 +1,12 @@
 $(function(){
 
+	var $messages = {
+	  success 	: $('.ui.message.success'),
+	  warning 	: $('.ui.message.warning'),
+	  error 	: $('.ui.message.error'),
+	  info 		: $('.ui.message.info')
+	};
+
 	$('.ui.dropdown')
       .dropdown()
     ;
@@ -9,23 +16,30 @@ $(function(){
     	event.preventDefault();
 
     	var action = $(this).parent('form').attr('action'),
-    		data = {_method: 'delete' };
+    		tr 	   = $(this).parents('tr'),
+    		data   = {_method: 'delete' };
 
-    	$.ajax({
+    	var result =  $.ajax({
 		    url:  action,
 		    type: 'POST',
 		    data: data,
-		    success: function(result) {
-		        
-		    }
+		    dataType : 'json'
+		})
+		.done(function(data) {
+			$messages.success.find('.content').text(data.message);
+			$messages.success.transition('fade up');
+			tr.fadeOut('slow');
+		})
+		.fail(function(data){
+			$messages.error.find('.content').text(data.message);
+			$messages.error.transition('fade up');
 		});
-
     });	
 
     $('.ui.button.delete').popup();
 
    	$('.close').click(function(){
-  		$(this).parent().transition()
+  		$(this).parent().transition('scale');
 	});
 
 	$('.ui.checkbox')

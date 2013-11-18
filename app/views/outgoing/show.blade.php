@@ -3,7 +3,7 @@
 @section('content')
 	
 
-		{{ $outgoing->user->name }}<br>
+		{{ $outgoing->author->name }}<br>
 		{{ $outgoing->title }}<br>
 		{{ $outgoing->description }}<br>
 		{{ $outgoing->date }}<br>
