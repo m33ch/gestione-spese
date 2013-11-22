@@ -18,16 +18,7 @@
   {{ HTML::script('assets/javascript/scripts.js') }}
 </head>
 <body>
-  <!-- Success-Messages -->
-  @if ($message = Session::get('success'))
-        <div class="ui success message">
-          <i class="close icon"></i>
-          <div class="header">
-            {{{ $message }}}
-          </div>
-      </div>
-  @endif
-  
+
   @if ( Auth::check() )
   <div class="ui menu">
     <a class="item <?php echo $currentMenu == 'user' ? 'active' : null ?>" href="{{ url('user') }}">
@@ -48,7 +39,10 @@
     </div>
   </div>
   @endif
+  <!-- Messages -->
+  @include('messages.messages')
   <div class="main container">
+    <!-- Contenuto -->
     @yield('content')
   </div>
   

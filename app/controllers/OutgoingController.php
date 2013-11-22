@@ -16,7 +16,8 @@ class OutgoingController extends BaseController {
 	 */
 	public function index()
 	{
-        $outgoings = $this->outgoing->with('user')->paginate(5);
+        $outgoings = $this->outgoing->with('author')->paginate(5);
+        
         return View::make('outgoing.index')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
@@ -83,7 +84,7 @@ class OutgoingController extends BaseController {
 				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
 			}
 
-            return Redirect::to('/')->with('success', 'Spesa creata');
+            return Redirect::to('/outgoing')->with('success', 'Spesa creata');
         }
 
         // Something went wrong.
@@ -99,6 +100,7 @@ class OutgoingController extends BaseController {
 	public function show($id)
 	{	
 		$outgoing = $this->outgoing->find($id);
+
         return View::make('outgoing.show')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
@@ -117,7 +119,6 @@ class OutgoingController extends BaseController {
 
         return View::make('outgoing.edit')
         			->with('currentUser',$this->currentUser)
-        			//->with('users',$users)
         			->with('currentMenu',$this->currentMenu)
         			->with('outgoing',$outgoing);
 	}
@@ -168,6 +169,7 @@ class OutgoingController extends BaseController {
             $outgoing->amount 		= $outgoingData['amount'];
 
 			$users = User::all();
+
 			foreach ($users as $user) {
 				if (isset($payersData['contributions'][$user->id])) {
 					$contribution = $payersData['contributions'][$user->id];
@@ -193,7 +195,10 @@ class OutgoingController extends BaseController {
 	public function destroy($id)
 	{
 		$outgoing = $this->outgoing->find($id);
-		$outgoing->delete();
+
+		if ( $outgoing->delete() ) {
+			return Response::json(array('message' => 'La spesa è stata eliminata'));
+		}
 	}
 
 }
