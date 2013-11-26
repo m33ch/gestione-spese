@@ -1,0 +1,13 @@
+body {
+	font-family: 'Open Sans',Helvetica,Arial;
+}
+body.grid {
+	margin:0; 
+}
+.container {
+	position: relative;
+}
+.main.container {
+	width: 1120px;
+	margin: 0 auto;
+}
