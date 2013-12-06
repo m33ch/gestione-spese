@@ -8,7 +8,7 @@
 
   <!-- Site Properities -->
   <title>Gestspese</title>
- 
+  <meta name="csrf-token" content="<?php echo csrf_token(); ?>">
   <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
   {{ HTML::style('assets/css/semantic.min.css') }}
   {{ HTML::style('assets/css/style.css') }}
@@ -40,8 +40,9 @@
   </div>
   @endif
   <!-- Messages -->
-  @include('messages.messages')
+  
   <div class="main container">
+    @include('messages.messages')
     <!-- Contenuto -->
     @yield('content')
   </div>

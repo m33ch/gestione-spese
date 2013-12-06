@@ -8,12 +8,18 @@
 		{{ $outgoing->description }}<br>
 		{{ $outgoing->date }}<br>
 		{{ $outgoing->amount }}<br>
+		{{ $outgoing->status }}<br>
 		-------------	
 		<br/>
-
-		@foreach ($outgoing->payers as $payer)
-			{{$payer->name}}<br>
-			{{$payer->pivot->contribution}}<br>
+		{{ $data = '' }}
+		@foreach ($payers as $payer)
+			
+			@if ($data != $payer->pivot->created_at)
+				Contribuenti inseriti il {{ $data = $payer->pivot->created_at }} <br/>
+			@endif
+			{{$payer->name}}
+			{{$payer->pivot->contribution}} €
+			<br />
 
 		@endforeach
 		-------------

@@ -101,10 +101,15 @@ class OutgoingController extends BaseController {
 	{	
 		$outgoing = $this->outgoing->find($id);
 
+		$payers = $outgoing->payers()
+							->orderBy('payers.created_at','desc')
+							->get();
+
         return View::make('outgoing.show')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
-        			->with('outgoing',$outgoing);
+        			->with('outgoing',$outgoing)
+        			->with('payers',$payers);
 	}
 
 	/**
@@ -117,10 +122,15 @@ class OutgoingController extends BaseController {
 	{
 		$outgoing = $this->outgoing->find($id);
 
+		$payers = $outgoing->payers()
+							->orderBy('payers.created_at','desc')
+							->get();
+
         return View::make('outgoing.edit')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
-        			->with('outgoing',$outgoing);
+        			->with('outgoing',$outgoing)
+        			->with('payers',$payers);
 	}
 
 	/**
@@ -161,7 +171,7 @@ class OutgoingController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes())
         {
-            $outgoing = $this->outgoing->find($id);
+            $outgoing = $this->outgoing->with('payers')->find($id);
 
             $outgoing->title 		= $outgoingData['title'];
             $outgoing->description 	= $outgoingData['description'];
@@ -174,7 +184,7 @@ class OutgoingController extends BaseController {
 				if (isset($payersData['contributions'][$user->id])) {
 					$contribution = $payersData['contributions'][$user->id];
 				}
-				$user->outgoings()->sync(array($outgoing->id => array('contribution' => $contribution)), false);
+				$user->outgoings()->attach(array($outgoing->id => array('contribution' => $contribution)));
 			}
 
 			$outgoing->save();

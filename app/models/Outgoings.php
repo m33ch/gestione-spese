@@ -12,6 +12,8 @@ class Outgoings extends Eloquent {
 
 	protected $softDelete = true;
 	
+	protected static $_payersGroup = false;
+
 	public static $rules = array();
 
 	public static function boot()
@@ -35,7 +37,6 @@ class Outgoings extends Eloquent {
 	{
 		return $this->belongsToMany('User', 'payers')
 		            ->whereNull('payers.deleted_at')
-					->withPivot('contribution');
+					->withPivot(array('contribution','created_at'));
 	}
-
 }

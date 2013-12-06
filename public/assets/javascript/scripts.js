@@ -1,5 +1,10 @@
 $(function(){
-
+	$.ajaxSetup({
+		headers: {
+			'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+		}
+	});
+	
 	var $messages = {
 	  success 	: $('.ui.message.success'),
 	  warning 	: $('.ui.message.warning'),

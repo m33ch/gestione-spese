@@ -35,7 +35,7 @@
 			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ $outgoing->amount }}" >
 			    <?php echo $errors->first('amount') ? '<div class="ui red pointing above label">'.$errors->first('amount').'</div>' : null;  ?>
 			</div>
-			@foreach ($outgoing->payers as $payer)
+			@foreach ($payers as $payer)
 				<div class="field {{ $errors->has('contributions') ? 'error' : null;  }} ">
 					<label>Contributo di {{ $payer->name }}</label>
 					<input placeholder="0.00" type="text" name="contributions[{{$payer->id}}]" value="{{ $payer->pivot->contribution }}" >
