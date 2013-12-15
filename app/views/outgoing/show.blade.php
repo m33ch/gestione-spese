@@ -11,17 +11,17 @@
 		{{ $outgoing->status }}<br>
 		-------------	
 		<br/>
-		{{ $data = '' }}
-		@foreach ($payers as $payer)
-			
-			@if ($data != $payer->pivot->created_at)
-				Contribuenti inseriti il {{ $data = $payer->pivot->created_at }} <br/>
-			@endif
-			{{$payer->name}}
-			{{$payer->pivot->contribution}} €
-			<br />
-
-		@endforeach
+		<?php $i = 0; ?>
+		@foreach ($payers as $key => $value)
+						
+							Contribuenti inseriti il {{ $key }} <br />
+							@foreach ($value as $payer)
+								
+								Contributo di {{$payer['name']}} : {{$payer['contribution'] }} <br />
+								
+							@endforeach
+						<?php $i++; ?>
+	    @endforeach
 		-------------
 
 @stop

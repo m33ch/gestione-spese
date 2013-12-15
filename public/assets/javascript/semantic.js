@@ -406,7 +406,7 @@ $.fn.accordion.settings = {
   selector    : {
     title   : '.title',
     content : '.content'
-  },
+  }
 
 
 };
@@ -1487,12 +1487,12 @@ $.fn.form = function(fields, parameters) {
                 $field      = $(this),
                 $fieldGroup = $field.closest($group)
               ;
-              if( $fieldGroup.hasClass(className.error) ) {
-                module.debug('Revalidating field', $field,  module.get.validation($field));
-                module.validate.field( module.get.validation($field) );
-              }
-              else if(settings.on == 'change') {
-                module.validate.field( module.get.validation($field) );
+              if(settings.on == 'change' || ( $fieldGroup.hasClass(className.error) && settings.revalidate) ) {
+                clearTimeout(module.timer);
+                module.timer = setTimeout(function() {
+                  module.debug('Revalidating field', $field,  module.get.validation($field));
+                  module.validate.field( module.get.validation($field) );
+                }, settings.delay);
               }
             }
           }
@@ -1903,6 +1903,9 @@ $.fn.form.settings = {
   on                : 'submit',
   inline            : false,
 
+  delay             : 200,
+  revalidate        : true,
+
   transition        : 'scale',
   duration          : 150,
 
@@ -1938,7 +1941,6 @@ $.fn.form.settings = {
   },
 
 
-
   templates: {
     error: function(errors) {
       var
@@ -1967,7 +1969,7 @@ $.fn.form.settings = {
     },
     email: function(value){
       var
-        emailRegExp = new RegExp("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
+        emailRegExp = new RegExp("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", "i")
       ;
       return emailRegExp.test(value);
     },
@@ -4037,7 +4039,7 @@ $.fn.dimmer = function(parameters) {
                   complete  : function() {
                     module.set.active();
                     callback();
-                  },
+                  }
                 })
               ;
             }
@@ -4676,8 +4678,12 @@ $.fn.dropdown = function(parameters) {
             click: function (event) {
               var
                 $choice = $(this),
-                text    = $choice.data(metadata.text)  || $choice.text(),
-                value   = $choice.data(metadata.value) || text.toLowerCase()
+                text    = ( $choice.data(metadata.text) !== undefined )
+                  ? $choice.data(metadata.text)
+                  : $choice.text(),
+                value   = ( $choice.data(metadata.value) !== undefined)
+                  ? $choice.data(metadata.value)
+                  : text.toLowerCase()
               ;
               if( $choice.find(selector.menu).size() === 0 ) {
                 module.determine.selectAction(text, value);
@@ -4780,7 +4786,10 @@ $.fn.dropdown = function(parameters) {
             return $text.text();
           },
           value: function() {
-            return $input.val();
+            return ($input.size() > 0)
+              ? $input.val()
+              : $module.data(metadata.value)
+            ;
           },
           item: function(value) {
             var
@@ -4788,15 +4797,21 @@ $.fn.dropdown = function(parameters) {
             ;
             value = (value !== undefined)
               ? value
-              : ( module.get.value() || module.get.text() )
+              : ( module.get.value() !== undefined)
+                ? module.get.value()
+                : module.get.text()
             ;
-            if(value) {
+            if(value !== undefined) {
               $item
                 .each(function() {
                   var
                     $choice       = $(this),
-                    optionText    = $choice.data(metadata.text)  || $choice.text(),
-                    optionValue   = $choice.data(metadata.value) || optionText.toLowerCase()
+                    optionText    = ( $choice.data(metadata.text) !== undefined )
+                      ? $choice.data(metadata.text)
+                      : $choice.text(),
+                    optionValue   = ( $choice.data(metadata.value) !== undefined )
+                      ? $choice.data(metadata.value)
+                      : optionText.toLowerCase()
                   ;
                   if( optionValue == value || optionText == value ) {
                     $selectedItem = $(this);
@@ -4820,7 +4835,12 @@ $.fn.dropdown = function(parameters) {
           },
           value: function(value) {
             module.debug('Adding selected value to hidden input', value, $input);
-            $input.val(value);
+            if($input.size() > 0) {
+              $input.val(value);
+            }
+            else {
+              $module.data(metadata.value, value);
+            }
           },
           active: function() {
             $module.addClass(className.active);
@@ -4835,7 +4855,10 @@ $.fn.dropdown = function(parameters) {
             ;
             if($selectedItem) {
               module.debug('Setting selected menu item to', $selectedItem);
-              selectedText = $selectedItem.data(metadata.text) || $selectedItem.text();
+              selectedText = ($selectedItem.data(metadata.text) !== undefined)
+                ? $selectedItem.data(metadata.text)
+                : $selectedItem.text()
+              ;
               $item
                 .removeClass(className.active)
               ;
@@ -5249,7 +5272,7 @@ $.fn.dropdown.settings = {
   transition : 'slide down',
   duration   : 250,
 
-  onChange : function(){},
+  onChange : function(value, text){},
   onShow   : function(){},
   onHide   : function(){},
 
@@ -5280,6 +5303,14 @@ $.fn.dropdown.settings = {
   }
 
 };
+
+// Adds easing
+$.extend( $.easing, {
+  easeOutQuad: function (x, t, b, c, d) {
+    return -c *(t/=d)*(t-2) + b;
+  },
+});
+
 
 })( jQuery, window , document );
 /*
@@ -5510,7 +5541,6 @@ $.fn.modal = function(parameters) {
             : function(){}
           ;
           if( !module.is.active() ) {
-            module.debug('Showing modal');
             module.cacheSizes();
             module.set.position();
             module.set.type();
@@ -5521,6 +5551,7 @@ $.fn.modal = function(parameters) {
             }
             else {
               if(settings.transition && $.fn.transition !== undefined && $module.transition('is supported')) {
+                module.debug('Showing modal with css animations');
                 $module
                   .transition(settings.transition + ' in', settings.duration, function() {
                     module.set.active();
@@ -5529,6 +5560,7 @@ $.fn.modal = function(parameters) {
                 ;
               }
               else {
+                module.debug('Showing modal with javascript');
                 $module
                   .fadeIn(settings.duration, settings.easing, function() {
                     module.set.active();
@@ -5960,7 +5992,7 @@ $.fn.modal.settings = {
   className : {
     active    : 'active',
     scrolling : 'scrolling'
-  },
+  }
 };
 
 
@@ -7483,7 +7515,7 @@ $.fn.rating = function(parameters) {
             .on('click' + eventNamespace, module.event.click)
           ;
           $module
-            .addClass(className.active)
+            .removeClass(className.disabled)
           ;
         },
 
@@ -7493,7 +7525,7 @@ $.fn.rating = function(parameters) {
             .off(eventNamespace)
           ;
           $module
-            .removeClass(className.active)
+            .addClass(className.disabled)
           ;
         },
 
@@ -7723,9 +7755,10 @@ $.fn.rating.settings = {
   },
 
   className : {
-    active  : 'active',
-    hover   : 'hover',
-    loading : 'loading'
+    active   : 'active',
+    disabled : 'disabled',
+    hover    : 'hover',
+    loading  : 'loading'
   },
 
   selector  : {
@@ -9290,7 +9323,7 @@ $.fn.shape.settings = {
 
 })( jQuery, window , document );
 /*
- * # Semantic - Dropdown
+ * # Semantic - Sidebar
  * http://github.com/jlukic/semantic-ui/
  *
  *
@@ -9802,6 +9835,7 @@ $.fn.sidebar.settings = {
 };
 
 })( jQuery, window , document );
+
 /*
  * # Semantic - Tab
  * http://github.com/jlukic/semantic-ui/
@@ -10636,7 +10670,7 @@ $.fn.transition = function() {
           if(!module.has.direction() && module.can.transition()) {
             module.set.direction();
           }
-          if(!module.has.transitionAvailable) {
+          if( !module.has.transitionAvailable() ) {
             module.restore.conditions();
             module.error(error.noAnimation);
             return false;

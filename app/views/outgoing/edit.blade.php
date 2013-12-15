@@ -13,7 +13,7 @@
 		<h2 class="ui header">
 		  	Modifica Spesa
 		</h2>
-		{{ Form::open(array('action' => array('OutgoingController@update', $outgoing->id), 'method' => 'put', )) }}
+		{{ Form::open(array('action' => array('OutgoingController@update', $outgoing->id), 'method' => 'put' )) }}
 		<div class="ui form segment">
 			<div class="field <?php echo $errors->first('title') ? 'error' : null;  ?>">
 			    <label>Titolo</label>
@@ -35,16 +35,58 @@
 			    <input placeholder="inserisci qui l'importo totale speso" type="text" name="amount" value="{{ $outgoing->amount }}" >
 			    <?php echo $errors->first('amount') ? '<div class="ui red pointing above label">'.$errors->first('amount').'</div>' : null;  ?>
 			</div>
-			@foreach ($payers as $payer)
-				<div class="field {{ $errors->has('contributions') ? 'error' : null;  }} ">
-					<label>Contributo di {{ $payer->name }}</label>
-					<input placeholder="0.00" type="text" name="contributions[{{$payer->id}}]" value="{{ $payer->pivot->contribution }}" >
-					<?php echo $errors->first('contributions') ? '<div class="ui red pointing above label">'.$errors->first('contributions').'</div>' : null;  ?>
+
+			<div class="ui fluid accordion">
+				<?php $i = 0; ?>
+				@foreach ($payers as $key => $value)
+						<div class="<?php echo $i == 0 ? 'active' : false; ?> title">
+			    			<i class="dropdown icon"></i>
+							Contribuenti inseriti il {{ $key }} 
+						</div>
+						<div class="<?php echo $i == 0 ? 'active' : false; ?> content">
+							@foreach ($value as $payer)
+								<div class="field {{ $errors->has('contributions') ? 'error' : null;  }} ">
+									<div class="ui divided tiny list">
+									  <div class="item">
+									      <b class="header">Contributo di : </b>
+									      <span class="description">{{$payer['name']}}</span>
+									  </div>
+									  <div class="item">
+									      <b class="header">Inserito alle ore : </b>
+									      <span class="description">{{ $payer['created_at'] }}</span>
+									  </div>
+									  <div class="item">
+									      <b class="header">Aggiornato alle ore :</b>
+									      <span class="description">{{ $payer['updated_at'] }}</span>
+									  </div>
+									</div>
+									<input placeholder="0.00" type="text" name="contributions[{{$payer['id']}}]" value="{{$payer['contribution'] }}" >
+									<?php echo $errors->first('contributions') ? '<div class="ui red pointing above label">'.$errors->first('contributions').'</div>' : null;  ?>
+								</div>
+								<div class="ui section divider"></div>
+							@endforeach
+						</div>
+						<?php $i++; ?>
+	    		@endforeach
+    		</div>
+		  	<div id="add_payer" class="ui segment transition hidden">
+		  		<div class="grouped inline fields">
+					  	@foreach ($users as $user)
+					  	<div class="field">
+						  	<div class="ui checkbox">
+							  <input type="checkbox" value="{{$user->id}}">
+							  <label>{{$user->name}}</label>
+							</div>
+						</div>
+						@endforeach
 				</div>
-    		@endforeach
-		  <button type="submit" class="ui blue submit button">Aggiorna</button>
+				<div id="contributions"></div>
+		  	</div>
+		</div>
+		<div class="two fluid ui buttons ">
+			 <button type="submit" class="ui icon labeled blue button"><i class="checkmark icon"></i> Aggiorna Spesa</button>
+			 <button class="ui icon right labeled green button icon add">Aggiungi Contribuente <i class="add icon"></i></button>
 		</div>
 		{{ Form::close() }}
 </div>
-
 @stop

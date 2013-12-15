@@ -37,6 +37,6 @@ class Outgoings extends Eloquent {
 	{
 		return $this->belongsToMany('User', 'payers')
 		            ->whereNull('payers.deleted_at')
-					->withPivot(array('contribution','created_at'));
+					->withPivot(array('contribution','created_at','updated_at'));
 	}
 }

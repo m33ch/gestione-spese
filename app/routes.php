@@ -33,6 +33,7 @@ Route::group(array('before' => 'auth'), function()
 	});
 
 	// Routes for OutgoingsController
+	Route::post('outgoing/{id}/add_payer', 'OutgoingController@add_payer');
 	Route::resource('outgoing','OutgoingController');
 
 });

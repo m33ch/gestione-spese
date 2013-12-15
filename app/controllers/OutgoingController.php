@@ -101,9 +101,23 @@ class OutgoingController extends BaseController {
 	{	
 		$outgoing = $this->outgoing->find($id);
 
-		$payers = $outgoing->payers()
-							->orderBy('payers.created_at','desc')
-							->get();
+		$_payers = $outgoing->payers()
+                            ->orderBy('payers.created_at','desc')
+                            ->get()
+                            ->toArray();
+        
+        $payers = array();
+        $data_tmp = '';
+        foreach ($_payers as $value) {
+            if ($data_tmp != $value['pivot']['created_at']) {
+                $data_tmp = $value['pivot']['created_at'];
+             }
+             $payers[$data_tmp][] = array(
+                                     'id'         		=> $value['id'],
+                                     'name'             => $value['name'],
+                                     'contribution'     => $value['pivot']['contribution']
+                                     );
+        }        
 
         return View::make('outgoing.show')
         			->with('currentUser',$this->currentUser)
@@ -122,14 +136,34 @@ class OutgoingController extends BaseController {
 	{
 		$outgoing = $this->outgoing->find($id);
 
-		$payers = $outgoing->payers()
-							->orderBy('payers.created_at','desc')
-							->get();
+		$_payers = $outgoing->payers()
+                            ->orderBy('payers.created_at','desc')
+                            ->get()
+                            ->toArray();
+        
+        $users = User::all();
 
+        $payers = array();
+        $data_tmp = '';
+        foreach ($_payers as $value) {
+            if ($data_tmp != $value['pivot']['created_at']) {
+                $data_tmp = date('d/m/Y',strtotime($value['pivot']['created_at']));
+                //$data_tmp = date('d/m/Y',$data_tmp);
+             }
+             $payers[$data_tmp][] = array(
+                                     'id'         		=> $value['id'],
+                                     'name'             => $value['name'],
+                                     'contribution'     => $value['pivot']['contribution'],
+                                     'created_at'       => date('H:i',strtotime($value['pivot']['created_at'])),
+                                     'updated_at'       => date('d/m/Y - H:i',strtotime($value['pivot']['updated_at'])),
+                                     );
+        } 
+        //print_r($payers);die();
         return View::make('outgoing.edit')
         			->with('currentUser',$this->currentUser)
         			->with('currentMenu',$this->currentMenu)
         			->with('outgoing',$outgoing)
+        			->with('users',$users)
         			->with('payers',$payers);
 	}
 
@@ -141,7 +175,6 @@ class OutgoingController extends BaseController {
 	 */
 	public function update($id)
 	{
-		//
 		$outgoingData = array(
                 'title' 		=> Input::get('title'),
                 'description' 	=> Input::get('description'),
@@ -211,4 +244,39 @@ class OutgoingController extends BaseController {
 		}
 	}
 
+	public function add_payer($id)
+	{  
+        $payersData = array(
+                'contributions'	=> Input::get('contributions')
+        );
+
+        // Declare the rules for the form validation.
+        $rules = array(
+           'contributions'	=> 'required'
+        );
+
+        // Validate the inputs.
+        $validator = Validator::make($payersData, $rules);
+
+        // Check if the form validates with success.
+        if ($validator->passes()) {
+        	
+        	$outgoing = $this->outgoing->with('payers')->find($id);
+
+            foreach($payersData['contributions'] as $key => $value) {
+
+        	   $user = User::find($key);
+
+        	   $user->outgoings()->attach(array($id => array('contribution' => $value)));
+            }
+
+        	$outgoing->save();
+
+        	return Response::json(array('message' => 'Contribuente inserito!'));
+
+        }
+
+        return Response::json(array($validator));
+
+	}
 }
