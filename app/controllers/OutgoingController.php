@@ -55,9 +55,6 @@ class OutgoingController extends BaseController {
                 'amount' 		=> Input::get('amount'),
                 'user_id' 		=> $this->currentUser->id
         );
-        $payersData = array(
-                'contributions'	=> Input::get('contributions')
-        );
 
         // Declare the rules for the form validation.
         $rules = array(
@@ -65,26 +62,17 @@ class OutgoingController extends BaseController {
            'description'  	=> 'required',
            'date'  			=> 'required',
            'amount'  		=> 'required',
-           'contributions'	=> 'required'
         );
 
-        $data = array_merge($outgoingData, $payersData);
-
         // Validate the inputs.
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($outgoingData, $rules);
 
         // Check if the form validates with success.
         if ($validator->passes())
         {
             $outgoing = $this->outgoing->create($outgoingData);
 
-			$users = User::all();
-
-			foreach ($users as $user) {
-				$user->outgoings()->attach($outgoing->id, array('contribution' => $payersData['contributions'][$user->id]));
-			}
-
-            return Redirect::to('/outgoing')->with('success', 'Spesa creata');
+			return Redirect::to('/outgoing/'.$outgoing->id.'/edit')->with('success', 'Spesa creata, aggiungi ora i contribuenti!');
         }
 
         // Something went wrong.
@@ -183,23 +171,16 @@ class OutgoingController extends BaseController {
                 'user_id' 		=> $this->currentUser->id
         );
 
-        $payersData = array(
-                'contributions'	=> Input::get('contributions')
-        );
-
         // Declare the rules for the form validation.
         $rules = array(
            'title'  		=> 'required',
            'description'  	=> 'required',
            'date'  			=> 'required',
-           'amount'  		=> 'required',
-           'contributions'	=> 'required'
+           'amount'  		=> 'required'
         );
 
-        $data = array_merge($outgoingData, $payersData);
-
         // Validate the inputs.
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($outgoingData, $rules);
 
         // Check if the form validates with success.
         if ($validator->passes())
@@ -210,15 +191,6 @@ class OutgoingController extends BaseController {
             $outgoing->description 	= $outgoingData['description'];
             $outgoing->date 		= $outgoingData['date'];
             $outgoing->amount 		= $outgoingData['amount'];
-
-			$users = User::all();
-
-			foreach ($users as $user) {
-				if (isset($payersData['contributions'][$user->id])) {
-					$contribution = $payersData['contributions'][$user->id];
-				}
-				$user->outgoings()->attach(array($outgoing->id => array('contribution' => $contribution)));
-			}
 
 			$outgoing->save();
 
@@ -261,8 +233,6 @@ class OutgoingController extends BaseController {
         // Check if the form validates with success.
         if ($validator->passes()) {
         	
-        	$outgoing = $this->outgoing->with('payers')->find($id);
-
             foreach($payersData['contributions'] as $key => $value) {
 
         	   $user = User::find($key);
@@ -270,13 +240,11 @@ class OutgoingController extends BaseController {
         	   $user->outgoings()->attach(array($id => array('contribution' => $value)));
             }
 
-        	$outgoing->save();
-
         	return Response::json(array('message' => 'Contribuente inserito!'));
 
         }
 
-        return Response::json(array($validator));
+        return Response::json(array($validator->messages()));
 
 	}
 }

@@ -58,6 +58,7 @@ $(function(){
 		    hiddenSuffix: '_submit'
 		});
 	}
+
 	$('.button.add').on('click', function(event) {
 		event.preventDefault();
 		$('#add_payer')
@@ -85,10 +86,10 @@ $(function(){
 	  .checkbox('setting', {
 	  		onEnable : function() {
 	  			var	id 	 = $(this).val(),
-	  				name = $(this).next().text();
+	  				name = $(this).next('label').text();
 	  				container = $('#add_payer #contributions'),
 	  				field = $('<div id="'+name+'" class="ui field transition hidden"></div>'),
-	  				save = $('<div class="ui button green save transition hidden">Salva</div>');
+	  				save = $('#add_payer .save');
 	  			
 	  			field.html(
 	  						'<label>Contributo per '+name+'</label>'+
@@ -99,28 +100,23 @@ $(function(){
 
 	  			field.transition('fade up');
 
-	  			if (container.children('.save').length == 0) {
-	  				container.append(save);
+	  			if (container.children('.ui.field').length == 1) {
+	  				save.transition('fade up');
 	  			}
-	  			save.transition('fade up');
 	  		},
 	  		onDisable : function() {
-	  			var	name = $(this).next().text(),
-	  				save = $('#add_payer #contributions .save');
+	  			var	name = $(this).next('label').text(),
+	  				save = $('#add_payer .save'),
+	  				container = $('#add_payer #contributions');
 
 	  			$('#'+name)
 	  				.transition({
 	  					animation : 'fade down', 
 	  					complete : function() {
 	  						$(this).remove();
-				  			if ($('#add_payer #contributions .ui.field').length == 0) {
-							  	save.transition({
-				  					animation : 'fade down', 
-				  					complete : function() {
-				  						$(this).remove();
-				  					}
-				  				})
-							}	
+	  						if (container.children('.ui.field').length == 0) {
+								save.transition('fade down')
+							}
 	  					}
 	  				})
 	  			
